@@ -27,4 +27,4 @@ while True:
     currentValue = analogIn.read()
     sleep(.001)
     if isGoal(currentValue, averageValue):
-        Goal()
+        Goal(currentValue)

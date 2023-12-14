@@ -11,9 +11,9 @@ socketio = SocketIO(app)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///project.db"
 db.init_app(app)
 
-# create tables in database
-# with app.app_context():
-#     db.create_all()
+# create tables in database if they don't exist
+with app.app_context():
+    db.create_all()
 
 currentGame = FoosballGame(socketio)
 playerManager = PlayerManager(socketio)
