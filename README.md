@@ -4,9 +4,9 @@ TODO: Give a short introduction of your project. Let this section explain the ob
 # Getting Started
 TODO: Guide users through getting your code up and running on their own system. In this section you can talk about:
 1.	Installation process
-    a. Install python to your machine (version built with 3.12.1)
+    * Install python to your machine (version built with 3.12.1)
 2.	Software dependencies
-    a. install dependencies for this project
+    * install dependencies for this project\
         pip install -r requirements.txt
 3.	Latest releases
 4.	API references
