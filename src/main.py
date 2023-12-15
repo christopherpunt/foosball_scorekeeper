@@ -1,8 +1,9 @@
 from flask import Flask, render_template, request, jsonify
 from flask_socketio import SocketIO
-from foosballGame import FoosballGame
+from foosballGame import FoosballGameManager
 from player import PlayerManager
 from database import db
+import json
 
 app = Flask(__name__)
 socketio = SocketIO(app)
@@ -15,7 +16,7 @@ db.init_app(app)
 with app.app_context():
     db.create_all()
 
-currentGame = FoosballGame(socketio)
+gameManager = FoosballGameManager(socketio)
 playerManager = PlayerManager(socketio)
 
 @app.route('/')
@@ -26,26 +27,39 @@ def index():
 
 @app.route('/new_game')
 def newGame():
-    currentGame.reset()
+    gameManager.newGame()
     return index()
 
 @app.route('/start_game', methods=['POST'])
 def start_game():
-    if currentGame.isGameReady():
+    if gameManager.isCurrentGameReady():
         return jsonify({'success': True})
     return jsonify({'success': False})
 
 @app.route('/add_user', methods=['POST'])
 def addUser():
-    return playerManager.addNewPlayer(request, currentGame)
+    return playerManager.addNewPlayer(request, gameManager.currentGame)
 
 @app.route('/game_page')
 def game_page():
     return render_template('game_page.html')
 
+@app.route('/add_score', methods=['POST'])
+def addScore():
+    # Get the raw bytes from the request
+    raw_data = request.data
+    data_str = raw_data.decode('utf-8')
+    data = json.loads(data_str)
+    team_value = data.get('team')
+
+    returnValue = gameManager.currentGame.addScore(team_value)
+    gameManager.updateCurrentGameData()
+    return returnValue
+
+
 @socketio.on('get_initial_data')
 def handle_get_initial_data():
-    currentGame.updateGameData()
+    gameManager.updateCurrentGameData()
 
 @socketio.on('change_score')
 def handle_change_score(data):
@@ -54,15 +68,16 @@ def handle_change_score(data):
         action = data['action']
 
         if action == 'minus':
-            currentGame.removeScore(team.upper())
+            gameManager.currentGame.removeScore(team.upper())
         elif action == 'plus':
-            currentGame.addScore(team.upper())
+            gameManager.currentGame.addScore(team.upper())
         else:
             print('incorrect action')
+        gameManager.updateCurrentGameData()
 
 @socketio.on('update_player')
 def handle_update_player(data):
-    playerManager.updatePlayers(data, currentGame)
+    playerManager.updatePlayers(data, gameManager.currentGame)
     
 
 if __name__ == '__main__':

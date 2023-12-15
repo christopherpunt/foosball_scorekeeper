@@ -44,10 +44,6 @@ class Team:
         if self.score > 0:
             self.score -= 1
 
-    def reset(self):
-        self.player1 = None
-        self.player2 = None
-        self.score = 0
 
 class TeamEnum(Enum):
     RED = 1

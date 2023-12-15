@@ -1,7 +1,7 @@
 from flask import jsonify
 from foosballGame import TeamEnum
 from database import db
-from sqlalchemy import Integer, String
+from sqlalchemy import Integer, String, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 class Player(db.Model):
@@ -73,21 +73,21 @@ class PlayerManager:
         data = request.get_json()
         if 'newUser' not in data:
             print(f'newUser does not exist in data from request')
-            return jsonify({'success': False, 'message': 'Something went wrong'})
+            return jsonify({'success': False, 'message': 'newUser does not exist in data from request'})
         
         newUser = data['newUser']
         if newUser is None or newUser == '':
             print(f'cannot create user {newUser}')
-            return jsonify({'success': False, 'message': 'Something went wrong'})
+            return jsonify({'success': False, 'message': f'cannot create user {newUser}'})
         
-        foundPlayer = db.session.execute(db.select(Player).where(Player.username == newUser)).first()
+        foundPlayer = db.session.execute(db.select(Player).where(func.lower(Player.username) == func.lower(newUser))).first()
         if foundPlayer is None:
             player = Player(username=newUser)
             db.session.add(player)
             db.session.commit()
             self.updatePlayerData(currentGame)
             return jsonify({'success': True})
-        return jsonify({'success': False, 'message': 'Something went wrong'})
+        return jsonify({'success': False, 'message': f'User: {newUser} already exists'})
 
     def addPlayerToTeam(self, player, team, currentGame):
         if player is None:
@@ -103,7 +103,6 @@ class PlayerManager:
 
         if player_added:
             print(f"User '{player.username}' joined the game on the '{team}' side.")
-            currentGame.updateGameData()
             return True
         return False
     

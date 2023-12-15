@@ -215,27 +215,26 @@
         }
 
         function addUser() {
-            const newUsername = document.getElementById('new-username').value;
+        const newUsernameInput = document.getElementById('new-username');
+        const newUsername = newUsernameInput.value;
 
-            const xhr = new XMLHttpRequest();
-            xhr.open('POST', '/add_user', true);
-            xhr.setRequestHeader('Content-Type', 'application/json');
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4 && xhr.status === 200) {
-                    const response = JSON.parse(xhr.responseText);
-                    if (response.success) {
-                        // Redirect to the game page on successful join
-                        // window.location.href = '/game_page';
-                        // alert('New User added: %s', newUsername)
-                    } else {
-                        alert('Failed to join the game. Please try again.');
-                    }
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', '/add_user', true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                const response = JSON.parse(xhr.responseText);
+                if (response.success) {
+                    newUsernameInput.value = '';
+                } else {
+                    alert(`Failed to join the game. ${response.message}`);
                 }
-            };
+            }
+        };
 
-            const data = JSON.stringify({ newUser: newUsername });
-            xhr.send(data);
-        }
+        const data = JSON.stringify({ newUser: newUsername });
+        xhr.send(data);
+    }
 
         function startGame() {
             // Initialize the arrays

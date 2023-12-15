@@ -1,11 +1,11 @@
 from configuration import Configuration
 from team import Team, TeamEnum
+from flask import jsonify
 
 
 class FoosballGame:
 
-    def __init__(self, socketio):
-        self.socketio = socketio
+    def __init__(self):
         self.blackTeam = Team(TeamEnum.BLACK)
         self.redTeam = Team(TeamEnum.RED)
         self.winningTeam = None
@@ -13,15 +13,17 @@ class FoosballGame:
     def addScore(self, team):
         if self.isFinished():
             print('game already finished, cannot change score')
-            return
+            return jsonify({'success': False, 'message': 'game already finished, cannot change score'})
 
         if (team == TeamEnum.BLACK.name):
             self.blackTeam.addScore()
+            return jsonify({'success': True})    
         elif (team == TeamEnum.RED.name):
             self.redTeam.addScore()
+            return jsonify({'success': True})    
         else:
             print(f'addScore(): team: {team} does not exist')
-        self.updateGameData()
+            return jsonify({'success': False, 'message': f'addScore(): team: {team} does not exist'})
     
     def removeScore(self, team):
         if self.isFinished():
@@ -33,7 +35,6 @@ class FoosballGame:
             self.redTeam.removeScore()        
         else:
             print(f'removeScore(): team: {team} does not exist')
-        self.updateGameData()
 
     def removePlayer(self, player):
         if self.blackTeam.removePlayer(player):
@@ -57,9 +58,6 @@ class FoosballGame:
             return True
         else:
             return False
-        
-    def updateGameData(self):
-        self.socketio.emit('update_game', self.getGameData())
 
     def getGameData(self):
         return {
@@ -80,8 +78,20 @@ class FoosballGame:
             'finished': self.isFinished(),
             'winningTeam': self.winningTeam.side.name if self.winningTeam else None
         }
+
+
+class FoosballGameManager:
+    currentGame = None
+
+    def __init__(self, socketio) -> None:
+        self.socketio = socketio
+        self.currentGame = FoosballGame()
+
+    def newGame(self):
+        self.currentGame = FoosballGame()
     
-    def reset(self):
-        self.blackTeam.reset()
-        self.redTeam.reset()
-        self.winningTeam = None
+    def isCurrentGameReady(self):
+        return self.currentGame.isGameReady()
+        
+    def updateCurrentGameData(self):
+        self.socketio.emit('update_game', self.currentGame.getGameData())
