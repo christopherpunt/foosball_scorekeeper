@@ -1,14 +1,30 @@
 from configuration import Configuration
 from team import Team, TeamEnum
 from flask import jsonify
+from sqlalchemy import Integer, DateTime, func, ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from database import db
 
 
-class FoosballGame:
+class FoosballGame(db.Model):
+    __tablename__ = 'foosball_games'
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    startDate: Mapped[DateTime] = mapped_column(DateTime, server_default=func.now())
+    finishDate: Mapped[DateTime] = mapped_column(DateTime, nullable=True)
+    red_team_id: Mapped[int] = mapped_column(Integer, ForeignKey('teams.id'))
+    black_team_id: Mapped[int] = mapped_column(Integer, ForeignKey('teams.id'))
+    winning_team: Mapped[int] = mapped_column(Integer, ForeignKey('teams.id'))
+
+    red_team = relationship('Team',foreign_keys=[red_team_id], back_populates='red_team_games')
+    black_team = relationship('Team',foreign_keys=[black_team_id], back_populates='black_team_games')
+    scores = relationship('Score', back_populates='foosball_game')
 
     def __init__(self):
-        self.blackTeam = Team(TeamEnum.BLACK)
-        self.redTeam = Team(TeamEnum.RED)
-        self.winningTeam = None
+        pass
+        # self.blackTeam = Team(TeamEnum.BLACK)
+        # self.redTeam = Team(TeamEnum.RED)
+        # self.winningTeam = None
 
     def addScore(self, team):
         if self.isFinished():

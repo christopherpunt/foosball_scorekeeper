@@ -2,12 +2,16 @@ from flask import jsonify
 from foosballGame import TeamEnum
 from database import db
 from sqlalchemy import Integer, String, func
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 class Player(db.Model):
+    __tablename__ = 'players'
+
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     username: Mapped[str] = mapped_column(String, unique=True, nullable=False)
     email: Mapped[str] = mapped_column(String, unique=True, nullable=True)
+    
+    teams = relationship('Team', back_populates='players')
 
 class PlayerManager:
 
