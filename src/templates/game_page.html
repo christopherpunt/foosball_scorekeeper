@@ -164,6 +164,13 @@
         </div>
     </div>
 
+    <div id="videoPopup" class="popup">
+        <div class="popup-content">
+            <video id="videoPlayer" controls type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.3/socket.io.js"></script>
     <script>
@@ -206,6 +213,34 @@
             const popup = document.getElementById('winningPopup');
             popup.style.display = 'none';
         }
+
+        const videoPopup = document.getElementById('videoPopup');
+        const videoPlayer = document.getElementById('videoPlayer');
+
+        socket.on('replay_video', function(data) {
+            // Check if a new score is added
+            if (data.new_score_added) {
+                // Set the video source and display the popup
+                videoPlayer.src = data.video_path;
+                videoPopup.style.display = 'flex';
+
+                // Set the flag back to false
+                new_score_added = false;
+
+                // Auto-play the video
+                videoPlayer.play();
+
+                // Handle video end event to close the popup
+                videoPlayer.addEventListener('ended', function() {
+                    closeVideoPopup();
+                });
+            }
+        });
+
+        function closeVideoPopup() {
+            videoPopup.style.display = 'none';
+        }
     </script>
+
 </body>
 </html>
