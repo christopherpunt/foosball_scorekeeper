@@ -3,6 +3,7 @@ from enum import Enum
 from sqlalchemy import Integer, DateTime, func, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from database import db
+from score import Score
 
 
 class Team(db.Model):
@@ -12,11 +13,13 @@ class Team(db.Model):
     wins: Mapped[int] = mapped_column(Integer, default=0)
     losses: Mapped[int] = mapped_column(Integer, default=0)
     player1_id: Mapped[int] = mapped_column(ForeignKey("players.id"))
-    player2_id: Mapped[int] = mapped_column(ForeignKey("players.id"))
+    player2_id: Mapped[int] = mapped_column(ForeignKey("players.id"), nullable=True)
 
     players = relationship('Player', foreign_keys=player1_id, back_populates='teams')
     red_team_games = relationship('Foosball_game', foreign_keys='foosball_games.red_team_id', back_populates='red_team')
     black_team_games = relationship('Foosball_game', foreign_keys='foosball_games.black_team_id', back_populates='black_team')
+    scores = relationship('Score', back_populates='team')
+
 
     def __init__(self):
         pass
