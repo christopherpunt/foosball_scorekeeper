@@ -26,9 +26,6 @@ class FoosballGame:
             return jsonify({'success': False, 'message': f'addScore(): team: {team} does not exist'})
     
     def removeScore(self, team):
-        if self.isFinished():
-            print('game already finished, cannot change score')
-            return
         if (team == TeamEnum.BLACK.name):
             self.blackTeam.removeScore()
         elif (team == TeamEnum.RED.name):
