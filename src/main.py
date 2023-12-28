@@ -8,6 +8,11 @@ import json
 app = Flask(__name__)
 socketio = SocketIO(app)
 
+# serve the socket.io js file as static content
+static_files = {
+    '/static' : './static'
+}
+
 # configure the SQLite database, relative to the app instance folder
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///project.db"
 db.init_app(app)
@@ -18,6 +23,11 @@ with app.app_context():
 
 gameManager = FoosballGameManager(socketio)
 playerManager = PlayerManager(socketio)
+
+def requestToJson(request):
+    raw_data = request.data
+    data_str = raw_data.decode('utf-8')
+    return json.loads(data_str)
 
 @app.route('/')
 def index():
@@ -33,6 +43,7 @@ def newGame():
 @app.route('/start_game', methods=['POST'])
 def start_game():
     if gameManager.isCurrentGameReady():
+        gameManager.startGame()
         return jsonify({'success': True})
     return jsonify({'success': False})
 
@@ -46,16 +57,17 @@ def game_page():
 
 @app.route('/add_score', methods=['POST'])
 def addScore():
-    # Get the raw bytes from the request
-    raw_data = request.data
-    data_str = raw_data.decode('utf-8')
-    data = json.loads(data_str)
-    team_value = data.get('team')
-
+    team_value = requestToJson(request).get('team')
     returnValue = gameManager.currentGame.addScore(team_value)
     gameManager.updateCurrentGameData()
     return returnValue
 
+@app.route('/register_goal_counter', methods=['POST'])
+def registerGoalCounter():
+    json = requestToJson(request)
+    team = json.get('team')
+    ip = json.get('controllerIp')
+    return jsonify({'success': True})
 
 @socketio.on('get_initial_data')
 def handle_get_initial_data():

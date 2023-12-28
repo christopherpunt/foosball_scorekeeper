@@ -9,8 +9,13 @@ class FoosballGame:
         self.blackTeam = Team(TeamEnum.BLACK)
         self.redTeam = Team(TeamEnum.RED)
         self.winningTeam = None
+        self.started = False
 
     def addScore(self, team):
+        if not self.started:
+            print('game not started')
+            return jsonify({'success': False, 'message': 'game not started'})
+        
         if self.isFinished():
             print('game already finished, cannot change score')
             return jsonify({'success': False, 'message': 'game already finished, cannot change score'})
@@ -39,12 +44,12 @@ class FoosballGame:
         if self.redTeam.removePlayer(player):
             return True
         return False
-
+    
+    def start(self):
+        self.started = True
+    
     def isGameReady(self):
-        if self.blackTeam.isTeamReady() and self.redTeam.isTeamReady():
-            return True
-        else:
-            return False
+        return self.blackTeam.isTeamReady() and self.redTeam.isTeamReady()
 
     def isFinished(self):
         if self.blackTeam and self.blackTeam.getScore() >= Configuration.gameWinningAmount:
@@ -87,8 +92,11 @@ class FoosballGameManager:
     def newGame(self):
         self.currentGame = FoosballGame()
     
+    def startGame(self):
+        self.currentGame.start()
+    
     def isCurrentGameReady(self):
         return self.currentGame.isGameReady()
-        
+    
     def updateCurrentGameData(self):
         self.socketio.emit('update_game', self.currentGame.getGameData())

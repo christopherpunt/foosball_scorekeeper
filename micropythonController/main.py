@@ -34,6 +34,12 @@ def connectToWifi():
     global baseUrl
     baseUrl = 'http://{}:5001'.format(sta_if.ifconfig()[2])
     print(baseUrl)
+    
+    data = {
+        'team': team,
+        'controllerIp': sta_if.ifconfig()[0]
+    }
+    sendPostRequest(baseUrl + '/register_goal_counter', data)
 
 def sendPostRequest(url, data):
     try:

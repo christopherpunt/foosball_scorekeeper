@@ -89,6 +89,13 @@
             color: #fff;
         }
 
+        .red {
+            color: red
+        }
+        
+        .black {
+            color: black
+        }
         
         .popup {
             display: none;
@@ -117,7 +124,7 @@
     
     <div class="team-container">
         <div class="team" id="redTeam">
-            <h3>Red Team</h3>
+            <h3 class="red">Red Team</h3>
             <div class="score-card" id="redScoreCard">
                 <p class="score">Score: <span id="redScore"></span></p>
                 <div class="score-buttons">
@@ -134,7 +141,7 @@
         </div>
 
         <div class="team" id="blackTeam">
-            <h3>Black Team</h3>
+            <h3 class="black">Black Team</h3>
             <div class="score-card" id="blackScoreCard">
                 <p class="score">Score: <span id="blackScore"></span></p>
                 <div class="score-buttons">
@@ -165,7 +172,7 @@
     </div>
 
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.3/socket.io.js"></script>
+    <script src="/static/socket.io.min.js"></script>
     <script>
         const socket = io.connect('http://' + document.domain + ':' + location.port + '/');
         socket.on('connect', function() {
