@@ -3,6 +3,12 @@ from time import sleep_ms
 import urequests as requests
 import ujson as json
 import neopixel
+import sys
+import gc
+
+# make sure the team variable is set in boot.py
+# team = 'RED'  or  team = 'BLACK'
+# so we can replace this program without having to worry about the team setting
 
 analogIn = ADC(0)
 # here we store the last vaerage value from the photo cell
@@ -11,9 +17,6 @@ averageValue = 0
 ssid = 'foosball'
 wifipassword = 'TGW66200'
 
-# states which team gets a goal; so RED controller needs to be mounted in the black goal
-# possible values RED and BLACK
-team = 'RED'
 baseUrl = ''
 
 numLeds = 3
@@ -30,7 +33,7 @@ def connectToWifi():
             pass
     print('network config:', sta_if.ifconfig())
     
-    # index 2 contains the ip address of the gateway
+    # index 2 contains the ip address of the 'gateway', so this will be our raspi
     global baseUrl
     baseUrl = 'http://{}:5001'.format(sta_if.ifconfig()[2])
     print(baseUrl)
@@ -39,15 +42,19 @@ def connectToWifi():
         'team': team,
         'controllerIp': sta_if.ifconfig()[0]
     }
-    sendPostRequest(baseUrl + '/register_goal_counter', data)
+    # as long as we can not connect to the backend we stay in here
+    while not sendPostRequest(baseUrl + '/register_goal_counter', data):
+        sleep_ms(1000)
 
 def sendPostRequest(url, data):
     try:
         response = requests.post(url, data=json.dumps(data))
         print("Response status code:", response.status_code)
         print("Response content:", response.text)
+        return True
     except Exception as e:
         print("POST Error:", e)
+        return False
 
 def lights(r, g, b):
     for j in range(numLeds):
@@ -100,6 +107,15 @@ def goal(currentValue):
     sendPostRequest(baseUrl + '/add_score', data)
     cycleGoalLights()
 
+
+
+try:
+    team
+except NameError:    
+    print('Make sure you set the team variable in boot.py, e. g. team = \'RED\'')
+    sys.exit()
+
+
 lightsRed()
 connectToWifi()
 initGoalCountMode()
@@ -108,5 +124,8 @@ while True:
     currentValue = analogIn.read()
     sleep_ms(1)
     if isGoal(currentValue, averageValue):
+        # strange enough: without that gc.collect we get random connection aborted 103 errors
+        # when trying to send a post request; this seems to fix it somehow
+        gc.collect()
         goal(currentValue)
         initGoalCountMode()
