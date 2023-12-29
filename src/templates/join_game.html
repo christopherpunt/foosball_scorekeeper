@@ -154,66 +154,47 @@
             updatePlayerListUI(redTeamList, data.redTeamPlayers, data.allowedRedTeamPlayers, 'red');
 
             updatePlayerListUI(blackTeamList, data.blackTeamPlayers, data.allowedRedTeamPlayers, 'black');
-        
-
         });
 
         function updatePlayerListUI(playerList, teamPlayers, allowedPlayers, team) {
-            // Clear the existing list
             playerList.innerHTML = '';
-
+        
             // Populate the list with updated player names
             teamPlayers.forEach(playerName => {
-                const listItem = document.createElement('li');
-                listItem.classList.add('player-item');
-
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.id = team + '-' + playerName;
-                checkbox.name = team + '-players';
-                checkbox.value = playerName;
-                checkbox.checked = true;
-                checkbox.onchange = function () {
-                    updatePlayerList(team, this);
-                };
-
-                const label = document.createElement('label');
-                label.classList.add('checkbox-label');
-                label.htmlFor = team + '-' + playerName;
-                label.innerText = playerName;
-
-                listItem.appendChild(checkbox);
-                listItem.appendChild(label);
-
-                playerList.appendChild(listItem);
+                createPlayerListItem(playerList, team, playerName, true);
             });
 
             allowedPlayers.forEach(playerName => {
-                const listItem = document.createElement('li');
-                listItem.classList.add('player-item');
-
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.id = team + '-' + playerName;
-                checkbox.name = team + '-players';
-                checkbox.value = playerName;
-                checkbox.checked = false;
-                checkbox.onchange = function () {
-                    updatePlayerList(team, this);
-                };
-
-                const label = document.createElement('label');
-                label.classList.add('checkbox-label');
-                label.htmlFor = team + '-' + playerName;
-                label.innerText = playerName;
-
-                listItem.appendChild(checkbox);
-                listItem.appendChild(label);
-
-                playerList.appendChild(listItem);
+                createPlayerListItem(playerList, team, playerName, false);
             });
         }
+        
+        function createPlayerListItem(playerList, team, playerName, checked) {
+        
+            const listItem = document.createElement('li');
+            listItem.classList.add('player-item');
 
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.id = team + '-' + playerName;
+            checkbox.name = team + '-players';
+            checkbox.value = playerName;
+            checkbox.checked = checked;
+            checkbox.onchange = function () {
+                updatePlayerList(team, this);
+            };
+
+            const label = document.createElement('label');
+            label.classList.add('checkbox-label');
+            label.htmlFor = team + '-' + playerName;
+            label.innerText = playerName;
+
+            listItem.appendChild(checkbox);
+            listItem.appendChild(label);
+
+            playerList.appendChild(listItem);
+        }
+        
         function limitSelection(checkbox) {
             const checkboxes = document.querySelectorAll('input[name="' + checkbox.name + '"]:checked');
 
@@ -223,26 +204,26 @@
         }
 
         function addUser() {
-        const newUsernameInput = document.getElementById('new-username');
-        const newUsername = newUsernameInput.value;
+            const newUsernameInput = document.getElementById('new-username');
+            const newUsername = newUsernameInput.value;
 
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', '/add_user', true);
-        xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4 && xhr.status === 200) {
-                const response = JSON.parse(xhr.responseText);
-                if (response.success) {
-                    newUsernameInput.value = '';
-                } else {
-                    alert(`Failed to join the game. ${response.message}`);
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '/add_user', true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    const response = JSON.parse(xhr.responseText);
+                    if (response.success) {
+                        newUsernameInput.value = '';
+                    } else {
+                        alert(`Failed to join the game. ${response.message}`);
+                    }
                 }
-            }
-        };
+            };
 
-        const data = JSON.stringify({ newUser: newUsername });
-        xhr.send(data);
-    }
+            const data = JSON.stringify({ newUser: newUsername });
+            xhr.send(data);
+        }
 
         function startGame() {
             // Initialize the arrays

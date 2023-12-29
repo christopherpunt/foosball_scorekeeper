@@ -58,15 +58,17 @@ def game_page():
 @app.route('/add_score', methods=['POST'])
 def addScore():
     team_value = requestToJson(request).get('team')
+    print(f'Team {team_value} scored a goal!')
     returnValue = gameManager.currentGame.addScore(team_value)
     gameManager.updateCurrentGameData()
     return returnValue
 
+# the goal counters / controllers need to register first before we can start a game
 @app.route('/register_goal_counter', methods=['POST'])
 def registerGoalCounter():
     json = requestToJson(request)
     team = json.get('team')
-    ip = json.get('controllerIp')
+    controllerIp = json.get('controllerIp')
     return jsonify({'success': True})
 
 @socketio.on('get_initial_data')
