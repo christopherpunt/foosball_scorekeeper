@@ -23,10 +23,10 @@
             background-color: #fff;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            padding: 20px;
+            padding: 10px;
             text-align: center;
-            margin-bottom: 20px; /* Adjust the margin between forms */
-            max-width: 600px; /* Set the max-width to your desired value */
+            margin-bottom: 10px; /* Adjust the margin between forms */
+            max-width: 300px; /* Set the max-width to your desired value */
             width: 100%; /* Ensure it takes full width if the screen is smaller than max-width */
         }
 
@@ -35,7 +35,8 @@
             background-color: #fff;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            padding: 20px;
+            padding: 10px;
+            max-width: 300px;
             text-align: center;
         }
 
@@ -58,16 +59,22 @@
             overflow-y: auto;
             border: 1px solid #ddd;
             border-radius: 4px;
-            margin-bottom: 15px;
+            padding-inline-start: 10px;
+        }
+
+        .player-list {
+
+            padding-inline-start: 10px;
         }
 
         .player-item {
             display: flex;
             align-items: center;
             margin: 5px;
-            padding: 10px;
+            padding: 5px;
             background-color: #f9f9f9;
             border-radius: 4px;
+            font-size: 16px;
         }
 
         .checkbox-label {
@@ -100,7 +107,7 @@
     <form id="join-form">
 
         <h2 class="red">Red Team</h2>
-        <ul id="red-team-players">
+        <ul class="player-list" id="red-team-players">
             {% for player in redTeamPlayers %}
                 <li class="player-item">
                     <input type="checkbox" id="red-{{ player['username'] }}" name="red-players" value="{{ player['username'] }}" onchange="updatePlayerList('red', this)">
@@ -110,7 +117,7 @@
         </ul>
 
         <h2 class="black">Black Team</h2>
-        <ul id="black-team-players">
+        <ul class="player-list" id="black-team-players">
             {% for player in blackTeamPlayers %}
                 <li class="player-item">
                     <input type="checkbox" id="black-{{ player['username'] }}" name="black-players" value="{{ player['username'] }}" onchange="updatePlayerList('black', this)">
