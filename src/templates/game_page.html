@@ -167,6 +167,7 @@
     <div id="winningPopup" class="popup">
         <div class="popup-content">
             <h3 id="winningTeamText"></h3>
+            <img src="/static/img/bean-dance.gif" alt="Dancing Bean" id="winningImage" style="display: none;">
             <button onclick="closePopup()">Close</button>
         </div>
     </div>
@@ -205,7 +206,20 @@
         function displayWinningPopup(winningTeam) {
             const popup = document.getElementById('winningPopup');
             const winningTeamText = document.getElementById('winningTeamText');
+            const winningImage = document.getElementById('winningImage');
+
             winningTeamText.innerText = `${winningTeam} Team Wins!`;
+
+            // Check if any team's score is 0
+            const redScore = parseInt(document.getElementById('redScore').innerText);
+            const blackScore = parseInt(document.getElementById('blackScore').innerText);
+
+            if (redScore === 0 || blackScore === 0) {
+                winningImage.style.display = 'block';
+            } else {
+                winningImage.style.display = 'none';
+            }
+
             popup.style.display = 'flex';  // Use flex to center the popup
         }
 
