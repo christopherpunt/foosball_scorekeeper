@@ -46,15 +46,18 @@ def connectToWifi():
     while not sendPostRequest(baseUrl + '/register_goal_counter', data):
         sleep_ms(1000)
 
-def sendPostRequest(url, data):
-    try:
-        response = requests.post(url, data=json.dumps(data))
-        print("Response status code:", response.status_code)
-        print("Response content:", response.text)
-        return True
-    except Exception as e:
-        print("POST Error:", e)
-        return False
+def sendPostRequest(url, data):    
+    for i in range(2):
+        try:
+            response = requests.post(url, data=json.dumps(data))
+            print("Response status code:", response.status_code)
+            print("Response content:", response.text)
+            return True
+        except Exception as e:
+            gc.collect()
+            print("POST Error:", e)
+            sleep_ms(1000)
+    return False
 
 def lights(r, g, b):
     for j in range(numLeds):
@@ -86,7 +89,7 @@ def initGoalCountMode():
     print(f'average: {averageValue}')
 
 def isGoal(currentValue, averageValue):
-    return averageValue - currentValue > 10
+    return averageValue - currentValue > 50
 
 def cycleGoalLights():
     for i in range(20 * numLeds):
