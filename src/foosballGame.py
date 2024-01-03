@@ -24,9 +24,9 @@ class FoosballGame:
         self.db = TinyDB('instance/FoosballGames.json')
 
     def addScore(self, team):
-        # if self.isFinished():
-        #     print('game already finished, cannot change score')
-        #     return jsonify({'success': False, 'message': 'game already finished, cannot change score'})
+        if self.isFinished:
+            print('game already finished, cannot change score')
+            return jsonify({'success': False, 'message': 'game already finished, cannot change score'})
 
         scoreAdded = False
         if (team == TeamEnum.BLACK.name) and self.blackTeamScore < Configuration.gameWinningAmount:
@@ -44,8 +44,13 @@ class FoosballGame:
     def removeScore(self, team):
         if (team == TeamEnum.BLACK.name) and self.blackTeamScore > 0:
             self.blackTeamScore -= 1
+            if self.isFinished:
+                self.isFinished = False
+                #TODO: maybe need to remove latest game save?
         elif (team == TeamEnum.RED.name) and self.redTeamScore > 0:
             self.redTeamScore -= 1      
+            if self.isFinished:
+                self.isFinished = False
         else:
             print(f'could not remove score from {team}')
 
@@ -62,9 +67,6 @@ class FoosballGame:
             self.db.insert(saveData)
         
         return self.isFinished
-
-    def getGameData_old(self):
-        return vars(self)
 
     def getGameData(self):
         return {
