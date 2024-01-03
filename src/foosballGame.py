@@ -1,102 +1,102 @@
 from configuration import Configuration
-from team import Team, TeamEnum
 from flask import jsonify
+from enum import Enum
+from tinydb import TinyDB, Query
+from datetime import datetime
 
+
+class TeamEnum(Enum):
+    RED = 'RED'
+    BLACK = 'BLACK'
 
 class FoosballGame:
 
-    def __init__(self):
-        self.blackTeam = Team(TeamEnum.BLACK)
-        self.redTeam = Team(TeamEnum.RED)
+    def __init__(self, redPlayer1, blackPlayer1, redPlayer2 = None, blackPlayer2 = None):
+        self.redPlayer1 = redPlayer1.username
+        self.blackPlayer1 = blackPlayer1.username
+        self.redPlayer2 = redPlayer2.username if redPlayer2 else None
+        self.blackPlayer2 = blackPlayer2.username if blackPlayer2 else None
+        self.blackTeamScore = 0
+        self.redTeamScore = 0
         self.winningTeam = None
-        self.started = False
+        self.isFinished = False
+
+        self._db = TinyDB('instance/FoosballGames.json')
 
     def addScore(self, team):
-        if not self.started:
-            print('game not started')
-            return jsonify({'success': False, 'message': 'game not started'})
-        
-        if self.isFinished():
+        if self.isFinished:
             print('game already finished, cannot change score')
             return jsonify({'success': False, 'message': 'game already finished, cannot change score'})
 
-        if (team == TeamEnum.BLACK.name):
-            self.blackTeam.addScore()
+        scoreAdded = False
+        if (team == TeamEnum.BLACK.name) and self.blackTeamScore < Configuration.gameWinningAmount:
+            self.blackTeamScore += 1
+            scoreAdded = True
+            return jsonify({'success': True})
+        elif (team == TeamEnum.RED.name) and self.redTeamScore < Configuration.gameWinningAmount:
+            self.redTeamScore += 1
             return jsonify({'success': True})    
-        elif (team == TeamEnum.RED.name):
-            self.redTeam.addScore()
-            return jsonify({'success': True})    
-        else:
-            print(f'addScore(): team: {team} does not exist')
-            return jsonify({'success': False, 'message': f'addScore(): team: {team} does not exist'})
+        
+        if not scoreAdded:
+            print(f'score for {team} could not be added')
+            return jsonify({'success': False, 'message': f'could not add score for {team}'})
     
     def removeScore(self, team):
-        if (team == TeamEnum.BLACK.name):
-            self.blackTeam.removeScore()
-        elif (team == TeamEnum.RED.name):
-            self.redTeam.removeScore()        
+        if (team == TeamEnum.BLACK.name) and self.blackTeamScore > 0:
+            self.blackTeamScore -= 1
+            if self.isFinished:
+                self.isFinished = False
+                #TODO: maybe need to remove latest game save?
+        elif (team == TeamEnum.RED.name) and self.redTeamScore > 0:
+            self.redTeamScore -= 1      
+            if self.isFinished:
+                self.isFinished = False
         else:
-            print(f'removeScore(): team: {team} does not exist')
+            print(f'could not remove score from {team}')
 
-    def removePlayer(self, player):
-        if self.blackTeam.removePlayer(player):
-            return True
-        if self.redTeam.removePlayer(player):
-            return True
-        return False
-    
-    def start(self):
-        self.started = True
-    
-    def isGameReady(self):
-        return self.blackTeam.isTeamReady() and self.redTeam.isTeamReady()
+    def isGameFinished(self):
+        if self.blackTeamScore >= Configuration.gameWinningAmount:
+            self.winningTeam = TeamEnum.BLACK.name
+            self.isFinished = True
+        elif self.redTeamScore >= Configuration.gameWinningAmount:
+            self.winningTeam = TeamEnum.RED.name
+            self.isFinished = True
 
-    def isFinished(self):
-        if self.blackTeam and self.blackTeam.getScore() >= Configuration.gameWinningAmount:
-            self.winningTeam = self.blackTeam
-            return True
-        elif self.redTeam and self.redTeam.getScore() >= Configuration.gameWinningAmount:
-            self.winningTeam = self.redTeam
-            return True
-        else:
-            return False
+        return self.isFinished
 
     def getGameData(self):
-        return {
-            'redTeam': {
-                'players': [
-                    self.redTeam.player1.username if self.redTeam.player1 else None,
-                    self.redTeam.player2.username if self.redTeam.player2 else None,
-                ],
-                'score': self.redTeam.score
-            },
-            'blackTeam': {
-                'players': [
-                    self.blackTeam.player1.username if self.blackTeam.player1 else None,
-                    self.blackTeam.player2.username if self.blackTeam.player2 else None,
-                ],
-                'score': self.blackTeam.score
-            },
-            'finished': self.isFinished(),
-            'winningTeam': self.winningTeam.side.name if self.winningTeam else None
-        }
-
+        gameData = vars(self)
+        gameData['finishDate'] = datetime.now().strftime('%m/%d/%Y, %I:%M%p') if self.isFinished else None
+        return {key: value for key, value in gameData.items() if not key.startswith('_')}
 
 class FoosballGameManager:
     currentGame = None
 
     def __init__(self, socketio) -> None:
         self.socketio = socketio
-        self.currentGame = FoosballGame()
+    
+    def startGame(self, redSelectedPlayers, blackSelectedPlayers):
 
-    def newGame(self):
-        self.currentGame = FoosballGame()
-    
-    def startGame(self):
-        self.currentGame.start()
-    
-    def isCurrentGameReady(self):
-        return self.currentGame.isGameReady()
+        #player1 should never be None, need to check if player2 exists, otherwise set as None
+        if len(redSelectedPlayers) == 2:
+            redPlayer2 = redSelectedPlayers[1]
+        else:
+            redPlayer2 = None
+        if len(blackSelectedPlayers) == 2:
+            blackPlayer2 = blackSelectedPlayers[1]
+        else:
+            blackPlayer2 = None
+
+        self.currentGame = FoosballGame(redPlayer1=redSelectedPlayers[0], blackPlayer1=blackSelectedPlayers[0], redPlayer2=redPlayer2, blackPlayer2=blackPlayer2)
     
     def updateCurrentGameData(self):
-        self.socketio.emit('update_game', self.currentGame.getGameData())
+        if self.currentGame is not None:
+            self.currentGame.isGameFinished()
+            self.socketio.emit('update_game', self.currentGame.getGameData())
+
+    def gameCompleted(self):
+        if self.currentGame.isFinished:
+            saveData = self.currentGame.getGameData()
+            self.currentGame._db.insert(saveData)
+
+        self.currentGame = None

@@ -1,52 +1,47 @@
 from flask import jsonify
 from foosballGame import TeamEnum
-from database import db
-from sqlalchemy import Integer, String, func
-from sqlalchemy.orm import Mapped, mapped_column
+from tinydb import TinyDB, Query
+import re
 
-class Player(db.Model):
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    username: Mapped[str] = mapped_column(String, unique=True, nullable=False)
-    email: Mapped[str] = mapped_column(String, unique=True, nullable=True)
+
+class Player:
+    def __init__(self, username) -> None:
+        self.username = username
+
+    def __eq__(self, other) -> bool:
+        return self.username == other.username 
 
 class PlayerManager:
-
     def __init__(self, socketio) -> None:
         self.socketio = socketio
+        self.redSelectedPlayers = []
+        self.blackSelectedPlayers = []
+        self._db = TinyDB('instance/players.json')
 
     def getAllPlayers(self):
-        return db.session.execute(db.select(Player).order_by(Player.username)).scalars().all()
+        players = []
+        for player_data in self._db.all():
+            players.append(Player(**player_data))
+        return players
 
-    def updatePlayerData(self, currentGame):
-        self.socketio.emit("update_players", self.getAllowedPlayerData(currentGame))
+    def updatePlayerData(self):
+        self.socketio.emit("update_players", self.getAllowedPlayerData())
 
-    def getAllowedPlayerData(self, currentGame):
+    def getAllowedPlayerData(self):
         players = self.getAllPlayers()
-
-        redTeamPlayers = []
-        if currentGame.redTeam.player1 is not None:
-            redTeamPlayers.append(currentGame.redTeam.player1.username)
-        if currentGame.redTeam.player2 is not None:
-            redTeamPlayers.append(currentGame.redTeam.player2.username)
-
-        blackTeamPlayers = []
-        if currentGame.blackTeam.player1 is not None:
-            blackTeamPlayers.append(currentGame.blackTeam.player1.username)
-        if currentGame.blackTeam.player2 is not None:
-            blackTeamPlayers.append(currentGame.blackTeam.player2.username)
         
-        allowedRedTeamPlayers = [ player.username for player in players if player.username not in redTeamPlayers and player.username not in blackTeamPlayers ]
-        allowedBlackTeamPlayers = [ player.username for player in players if player.username not in redTeamPlayers and player.username not in blackTeamPlayers ]
+        allowedRedTeamPlayers = [player.username for player in players if player.username not in [p.username for p in self.redSelectedPlayers] and player.username not in [p.username for p in self.blackSelectedPlayers]]
+        allowedBlackTeamPlayers = [player.username for player in players if player.username not in [p.username for p in self.redSelectedPlayers] and player.username not in [p.username for p in self.blackSelectedPlayers]]
 
         return {
-            'redTeamPlayers': redTeamPlayers,
+            'redTeamPlayers': [player.username for player in self.redSelectedPlayers],
             'allowedRedTeamPlayers': allowedRedTeamPlayers,
 
-            'blackTeamPlayers': blackTeamPlayers,
+            'blackTeamPlayers': [player.username for player in self.blackSelectedPlayers],
             'allowedBlackTeamPlayers': allowedBlackTeamPlayers
         }
 
-    def updatePlayers(self, request, currentGame):
+    def updatePlayers(self, request):
         data = request
 
         if 'team' in data and 'playerName' in data and 'isChecked' in data:
@@ -55,21 +50,24 @@ class PlayerManager:
             checked = data['isChecked']
             if checked == True:
                 if team == 'red':
-                    self.addPlayerToTeam(self.findExistingPlayer(playerName), TeamEnum.RED, currentGame)
+                    self.addSelectedPlayer(self.findExistingPlayer(playerName), TeamEnum.RED)
                 elif team == 'black':
-                    self.addPlayerToTeam(self.findExistingPlayer(playerName), TeamEnum.BLACK, currentGame)
+                    self.addSelectedPlayer(self.findExistingPlayer(playerName), TeamEnum.BLACK)
             else:
-                self.removePlayerFromGame(self.findExistingPlayer(playerName), currentGame)
+                self.removeSelectedPlayer(self.findExistingPlayer(playerName))
 
-        self.updatePlayerData(currentGame)
+        self.updatePlayerData()
         return jsonify({'success': True})    
 
-    def findExistingPlayer(self, plaerName):
-        foundPlayer = db.session.execute(db.select(Player).where(Player.username == plaerName)).scalar()
-        if foundPlayer is not None:
-            return foundPlayer
+    def findExistingPlayer(self, playerName):
+        User = Query()
+        results = self._db.search(User.username.matches(playerName, flags=re.IGNORECASE))
 
-    def addNewPlayer(self, request, currentGame):
+        if len(results) == 1:
+            return Player(**results[0])
+        return None
+
+    def addNewPlayer(self, request):
         data = request.get_json()
         if 'newUser' not in data:
             print(f'newUser does not exist in data from request')
@@ -80,24 +78,26 @@ class PlayerManager:
             print(f'cannot create user {newUser}')
             return jsonify({'success': False, 'message': f'cannot create user {newUser}'})
         
-        foundPlayer = db.session.execute(db.select(Player).where(func.lower(Player.username) == func.lower(newUser))).first()
+        foundPlayer = self.findExistingPlayer(newUser)
+
         if foundPlayer is None:
             player = Player(username=newUser)
-            db.session.add(player)
-            db.session.commit()
-            self.updatePlayerData(currentGame)
+            self._db.insert(vars(player))
+            self.updatePlayerData()
             return jsonify({'success': True})
         return jsonify({'success': False, 'message': f'User: {newUser} already exists'})
 
-    def addPlayerToTeam(self, player, team, currentGame):
+    def addSelectedPlayer(self, player, team):
         if player is None:
             return False
 
         player_added = False
-        if team == TeamEnum.BLACK:
-            player_added = currentGame.blackTeam.addPlayer(player)
-        elif team == TeamEnum.RED:
-            player_added = currentGame.redTeam.addPlayer(player)
+        if team == TeamEnum.BLACK and len(self.blackSelectedPlayers) <= 2:
+            self.blackSelectedPlayers.append(player)
+            player_added = True
+        elif team == TeamEnum.RED and len(self.redSelectedPlayers) <= 2:
+            self.redSelectedPlayers.append(player)
+            player_added = True
         else:
             print(f'Team: {team} not recognized')
 
@@ -106,5 +106,22 @@ class PlayerManager:
             return True
         return False
     
-    def removePlayerFromGame(self, playerName, currentGame):
-        currentGame.removePlayer(playerName)
+    def clearSelectedPlayers(self):
+        self.redSelectedPlayers = []
+        self.blackSelectedPlayers = []
+    
+    def areSelectedPlayersReady(self):
+        if len(self.redSelectedPlayers) > 0 and len(self.blackSelectedPlayers) > 0:
+            return True
+    
+    def getRedTeamSelectedPlayers(self):
+        return self.redSelectedPlayers
+    
+    def getBlackTeamSelectedPlayers(self):
+        return self.blackSelectedPlayers
+    
+    def removeSelectedPlayer(self, player):
+        if player in self.blackSelectedPlayers:
+            self.blackSelectedPlayers.remove(player)
+        if player in self.redSelectedPlayers:
+            self.redSelectedPlayers.remove(player)

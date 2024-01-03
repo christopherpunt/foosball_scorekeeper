@@ -2,7 +2,6 @@ from flask import Flask, render_template, request, jsonify
 from flask_socketio import SocketIO
 from foosballGame import FoosballGameManager
 from player import PlayerManager
-from database import db
 import json
 
 app = Flask(__name__)
@@ -12,14 +11,6 @@ socketio = SocketIO(app)
 static_files = {
     '/static' : './static'
 }
-
-# configure the SQLite database, relative to the app instance folder
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///project.db"
-db.init_app(app)
-
-# create tables in database if they don't exist
-with app.app_context():
-    db.create_all()
 
 gameManager = FoosballGameManager(socketio)
 playerManager = PlayerManager(socketio)
@@ -31,25 +22,21 @@ def requestToJson(request):
 
 @app.route('/')
 def index():
+    playerManager.clearSelectedPlayers()
     redTeamPlayers = playerManager.getAllPlayers()
     blackTeamPlayers = playerManager.getAllPlayers()
     return render_template('join_game.html', redTeamPlayers=redTeamPlayers, blackTeamPlayers=blackTeamPlayers)
 
-@app.route('/new_game')
-def newGame():
-    gameManager.newGame()
-    return index()
-
 @app.route('/start_game', methods=['POST'])
 def start_game():
-    if gameManager.isCurrentGameReady():
-        gameManager.startGame()
+    if playerManager.areSelectedPlayersReady():
+        gameManager.startGame(playerManager.getRedTeamSelectedPlayers(), playerManager.getBlackTeamSelectedPlayers())
         return jsonify({'success': True})
     return jsonify({'success': False})
 
 @app.route('/add_user', methods=['POST'])
 def addUser():
-    return playerManager.addNewPlayer(request, gameManager.currentGame)
+    return playerManager.addNewPlayer(request)
 
 @app.route('/game_page')
 def game_page():
@@ -91,8 +78,18 @@ def handle_change_score(data):
 
 @socketio.on('update_player')
 def handle_update_player(data):
-    playerManager.updatePlayers(data, gameManager.currentGame)
-    
+    playerManager.updatePlayers(data)
+
+@socketio.on('switch_sides')
+def handle_switch_sides():
+    gameManager.gameCompleted()
+    gameManager.startGame(playerManager.getBlackTeamSelectedPlayers(), playerManager.getRedTeamSelectedPlayers())
+    gameManager.updateCurrentGameData()
+    return render_template('game_page.html')
+
+@socketio.on('game_completed')
+def handleGameCompleted():
+    gameManager.gameCompleted()
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=5001, debug=True)

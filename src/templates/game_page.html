@@ -117,6 +117,32 @@
             text-align: center;
         }
 
+        .popup-content button {
+            margin: 10px auto; /* Auto margin horizontally centers the buttons */
+            padding: 15px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            width: 80%; /* Adjust the width as needed */
+            display: block; /* Ensure buttons appear in the same column */
+        }
+
+        .popup-content button:nth-child(3) {
+            background-color: #d9534f; /* Red for the fix score button */
+            color: #fff;
+        }
+
+        .popup-content button:nth-child(4) {
+            background-color: #f0ad4e; /* Orange for the switch sides button */
+            color: #fff;
+        }
+
+        .popup-content button:nth-child(5) {
+            background-color: #5cb85c; /* Green for the third button */
+            color: #fff;
+        }
+
     </style>
 </head>
 <body>    
@@ -156,7 +182,7 @@
         </div>
     </div>
 
-    <a href="/new_game" style="text-decoration: none;">
+    <a href="/" style="text-decoration: none;">
         <button style="margin-top: 20px; padding: 10px; font-size: 12px; cursor: pointer; border: none; border-radius: 5px; width: 100%; background-color: #337ab7; color: #fff;">
             Start New Game
         </button>
@@ -166,7 +192,9 @@
         <div class="popup-content">
             <h3 id="winningTeamText"></h3>
             <img src="/static/img/bean-dance.gif" alt="Dancing Bean" id="winningImage" style="display: none;">
-            <button onclick="closePopup()">Close</button>
+            <button onclick="closePopup()">Fix Score</button>
+            <button onclick="switchSides()">Switch Sides</button>
+            <button onclick="confirmGameCompleted()">Game Completed</button>
         </div>
     </div>
 
@@ -183,15 +211,15 @@
 
         socket.on('update_game', function(data) {
             console.log(data);
-            document.getElementById('redPlayer1').innerText = data.redTeam.players[0];
-            document.getElementById('redPlayer2').innerText = data.redTeam.players[1];
-            document.getElementById('redScore').innerText = data.redTeam.score;
+            document.getElementById('redPlayer1').innerText = data.redPlayer1;
+            document.getElementById('redPlayer2').innerText = data.redPlayer2;
+            document.getElementById('redScore').innerText = data.redTeamScore;
 
-            document.getElementById('blackPlayer1').innerText = data.blackTeam.players[0];
-            document.getElementById('blackPlayer2').innerText = data.blackTeam.players[1];
-            document.getElementById('blackScore').innerText = data.blackTeam.score;
+            document.getElementById('blackPlayer1').innerText = data.blackPlayer1;
+            document.getElementById('blackPlayer2').innerText = data.blackPlayer2;
+            document.getElementById('blackScore').innerText = data.blackTeamScore;
 
-            if (data.finished){
+            if (data.isFinished){
                 displayWinningPopup(data.winningTeam);
             }
         });
@@ -225,6 +253,21 @@
             const popup = document.getElementById('winningPopup');
             popup.style.display = 'none';
         }
+
+        function switchSides() {
+            const popup = document.getElementById('winningPopup');
+            popup.style.display = 'none';
+
+            socket.emit('switch_sides');
+        }
+        
+        function confirmGameCompleted() {
+            const popup = document.getElementById('winningPopup');
+            popup.style.display = 'none';
+
+            socket.emit('game_completed')
+        }
+        
     </script>
 </body>
 </html>
