@@ -83,7 +83,7 @@ class FoosballGame:
                 'score': self.blackTeamScore
             },
             'finished': self.isFinished,
-            'finishDate': datetime.now().strftime('%d/%m/%Y, %I:%M%p'),
+            'finishDate': datetime.now().strftime('%m/%d/%Y, %I:%M%p'),
             'winningTeam': self.winningTeam.name if self.winningTeam else None
         }
 
