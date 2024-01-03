@@ -1,7 +1,8 @@
 from configuration import Configuration
-# from team import Team, TeamEnum
 from flask import jsonify
 from enum import Enum
+from tinydb import TinyDB, Query
+from datetime import datetime
 
 
 class TeamEnum(Enum):
@@ -18,6 +19,9 @@ class FoosballGame:
         self.blackTeamScore = 0
         self.redTeamScore = 0
         self.winningTeam = None
+        self.isFinished = False
+
+        self.db = TinyDB('instance/FoosballGames.json')
 
     def addScore(self, team):
         # if self.isFinished():
@@ -45,15 +49,22 @@ class FoosballGame:
         else:
             print(f'could not remove score from {team}')
 
-    def isFinished(self):
+    def isGameFinished(self):
         if self.blackTeamScore >= Configuration.gameWinningAmount:
             self.winningTeam = TeamEnum.BLACK
-            return True
+            self.isFinished = True
         elif self.redTeamScore >= Configuration.gameWinningAmount:
             self.winningTeam = TeamEnum.RED
-            return True
-        else:
-            return False
+            self.isFinished = True
+
+        if self.isFinished:
+            saveData = self.getGameData()
+            self.db.insert(saveData)
+        
+        return self.isFinished
+
+    def getGameData_old(self):
+        return vars(self)
 
     def getGameData(self):
         return {
@@ -71,7 +82,8 @@ class FoosballGame:
                 ],
                 'score': self.blackTeamScore
             },
-            'finished': self.isFinished(),
+            'finished': self.isFinished,
+            'finishDate': datetime.now().strftime('%d/%m/%Y, %I:%M%p'),
             'winningTeam': self.winningTeam.name if self.winningTeam else None
         }
 
@@ -98,4 +110,5 @@ class FoosballGameManager:
     
     def updateCurrentGameData(self):
         if self.currentGame is not None:
+            self.currentGame.isGameFinished()
             self.socketio.emit('update_game', self.currentGame.getGameData())
