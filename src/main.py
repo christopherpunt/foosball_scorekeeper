@@ -26,6 +26,10 @@ def requestToJson(request):
 def index():
     return render_template('leaderboard.html', stats=leaderboardStats.getStats())
 
+@app.route('/players')
+def getAllPlayers():
+    return render_template('/players.html', players=playerManager.getAllPlayers())
+
 @app.route('/join_game')
 def joinGame():
     playerManager.clearSelectedPlayers()
