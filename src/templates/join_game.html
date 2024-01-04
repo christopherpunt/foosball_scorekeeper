@@ -7,40 +7,67 @@
 {% block title %}Join Game{% endblock %}
 
 {% block styles %}
+<style>
+    .team-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 75vh; /* Adjust the height as needed */
+    }
 
+    .team-card {
+        border: 1px solid #ccc;
+        width: 30%;
+        min-width: 300px;
+        border-radius: 5px;
+        padding: 20px; /* Increased padding for a pop-off effect */
+        margin-bottom: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Box shadow for pop-off effect */
+    }
+
+    .player-list {
+        list-style: none;
+        padding: 0;
+    }
+
+    .player-item {
+        margin-bottom: 10px;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<form id="join-form">
+<div class="team-container">
+    <form id="join-form">
 
-    <h2 class="red">Red Team</h2>
-    <ul class="player-list" id="red-team-players">
-        {% for player in redTeamPlayers %}
-            <li class="player-item">
-                <input type="checkbox" id="red-{{ player['username'] }}" name="red-players" value="{{ player['username'] }}" onchange="updatePlayerList('red', this)">
-                <label class="checkbox-label" for="red-{{ player['username'] }}">{{ player['username'] }}</label>
-            </li>
-        {% endfor %}
-    </ul>
+        <div class="team-card">
+            <h2 class="red">Red Team</h2>
+            <ul class="player-list" id="red-team-players">
+                {% for player in redTeamPlayers %}
+                    <li class="player-item">
+                        <input type="checkbox" id="red-{{ player['username'] }}" name="red-players" value="{{ player['username'] }}" onchange="updatePlayerList('red', this)">
+                        <label class="checkbox-label" for="red-{{ player['username'] }}">{{ player['username'] }}</label>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
 
-    <h2 class="black">Black Team</h2>
-    <ul class="player-list" id="black-team-players">
-        {% for player in blackTeamPlayers %}
-            <li class="player-item">
-                <input type="checkbox" id="black-{{ player['username'] }}" name="black-players" value="{{ player['username'] }}" onchange="updatePlayerList('black', this)">
-                <label class="checkbox-label" for="black-{{ player['username'] }}">{{ player['username'] }}</label>
-            </li>
-        {% endfor %}
-    </ul>
-    <button type="button" onclick="startGame()">Start Game</button>
-</form>
+        <div class="team-card">
+            <h2 class="black">Black Team</h2>
+            <ul class="player-list" id="black-team-players">
+                {% for player in blackTeamPlayers %}
+                    <li class="player-item">
+                        <input type="checkbox" id="black-{{ player['username'] }}" name="black-players" value="{{ player['username'] }}" onchange="updatePlayerList('black', this)">
+                        <label class="checkbox-label" for="black-{{ player['username'] }}">{{ player['username'] }}</label>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
 
-<form id="add-user-form">
-    <label for="new-username">New Username:</label>
-    <input type="text" id="new-username" name="new-username" required>
-    
-    <button type="button" onclick="addUser()">Add User</button>    
-</form>
+        <button type="button" onclick="startGame()">Start Game</button>
+    </form>
+</div>
+
 
 <script src="/static/socket.io.min.js"></script>
 <script>
@@ -117,28 +144,6 @@
         }
     }
 
-    function addUser() {
-        const newUsernameInput = document.getElementById('new-username');
-        const newUsername = newUsernameInput.value;
-
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', '/add_user', true);
-        xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4 && xhr.status === 200) {
-                const response = JSON.parse(xhr.responseText);
-                if (response.success) {
-                    newUsernameInput.value = '';
-                } else {
-                    alert(`Failed to join the game. ${response.message}`);
-                }
-            }
-        };
-
-        const data = JSON.stringify({ newUser: newUsername });
-        xhr.send(data);
-    }
-
     function startGame() {
         // Initialize the arrays
         const redTeamPlayers = [];
@@ -169,14 +174,6 @@
         const data = JSON.stringify({ redTeamPlayers: redTeamPlayers, blackTeamPlayers: blackTeamPlayers });
         xhr.send(data);
     }
-
-    // Listen for the submit event on the form
-    document.getElementById('add-user-form').addEventListener('submit', function(event) {
-        // Prevent the default form submission behavior
-        event.preventDefault();
-        // Trigger the custom joinGame function
-        addUser();
-    });
 </script>
 {% endblock %}
 </html>
