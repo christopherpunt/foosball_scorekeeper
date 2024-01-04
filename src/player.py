@@ -49,9 +49,9 @@ class PlayerManager:
             playerName = data['playerName']
             checked = data['isChecked']
             if checked == True:
-                if team == 'red':
+                if team == TeamEnum.RED.value:
                     self.addSelectedPlayer(self.findExistingPlayer(playerName), TeamEnum.RED)
-                elif team == 'black':
+                elif team == TeamEnum.BLACK.value:
                     self.addSelectedPlayer(self.findExistingPlayer(playerName), TeamEnum.BLACK)
             else:
                 self.removeSelectedPlayer(self.findExistingPlayer(playerName))
@@ -92,12 +92,18 @@ class PlayerManager:
             return False
 
         player_added = False
-        if team == TeamEnum.BLACK and len(self.blackSelectedPlayers) <= 2:
-            self.blackSelectedPlayers.append(player)
-            player_added = True
-        elif team == TeamEnum.RED and len(self.redSelectedPlayers) <= 2:
-            self.redSelectedPlayers.append(player)
-            player_added = True
+        if team == TeamEnum.BLACK:
+            if len(self.blackSelectedPlayers) < 2:
+                self.blackSelectedPlayers.append(player)
+                player_added = True
+            else:
+                print(f'team: {team} already has 2 selected players')
+        elif team == TeamEnum.RED:
+            if len(self.redSelectedPlayers) < 2:
+                self.redSelectedPlayers.append(player)
+                player_added = True
+            else:
+                print(f'team: {team} already has 2 selected players')
         else:
             print(f'Team: {team} not recognized')
 
@@ -123,5 +129,7 @@ class PlayerManager:
     def removeSelectedPlayer(self, player):
         if player in self.blackSelectedPlayers:
             self.blackSelectedPlayers.remove(player)
+            print(f'player: {player.username} was removed from the black team')
         if player in self.redSelectedPlayers:
             self.redSelectedPlayers.remove(player)
+            print(f'player: {player.username} was removed from the red team')

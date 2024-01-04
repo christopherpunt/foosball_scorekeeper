@@ -92,6 +92,7 @@ def handle_change_score(data):
 
 @socketio.on('update_player')
 def handle_update_player(data):
+    print(data)
     playerManager.updatePlayers(data)
 
 @socketio.on('switch_sides')

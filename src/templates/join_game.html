@@ -20,9 +20,9 @@
         width: 30%;
         min-width: 300px;
         border-radius: 5px;
-        padding: 20px; /* Increased padding for a pop-off effect */
+        padding: 20px;
         margin-bottom: 20px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Box shadow for pop-off effect */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
 
     .player-list {
@@ -32,6 +32,15 @@
 
     .player-item {
         margin-bottom: 10px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        padding: 10px;
+        border-radius: 5px;
+        user-select: text;
+    }
+
+    .player-item.selected {
+        background-color: #e6f7ff;
     }
 </style>
 {% endblock %}
@@ -44,10 +53,10 @@
             <h2 class="red">Red Team</h2>
             <ul class="player-list" id="red-team-players">
                 {% for player in redTeamPlayers %}
-                    <li class="player-item">
-                        <input type="checkbox" id="red-{{ player['username'] }}" name="red-players" value="{{ player['username'] }}" onchange="updatePlayerList('red', this)">
-                        <label class="checkbox-label" for="red-{{ player['username'] }}">{{ player['username'] }}</label>
-                    </li>
+                <div class="player-item">
+                    {{ player['username'] }}
+                    <input class="player-name" type="hidden" name="player-name" value="{{ player['username'] }}">
+                </div>
                 {% endfor %}
             </ul>
         </div>
@@ -56,10 +65,10 @@
             <h2 class="black">Black Team</h2>
             <ul class="player-list" id="black-team-players">
                 {% for player in blackTeamPlayers %}
-                    <li class="player-item">
-                        <input type="checkbox" id="black-{{ player['username'] }}" name="black-players" value="{{ player['username'] }}" onchange="updatePlayerList('black', this)">
-                        <label class="checkbox-label" for="black-{{ player['username'] }}">{{ player['username'] }}</label>
-                    </li>
+                <div class="player-item">
+                    {{ player['username'] }}
+                    <input class="player-name" type="hidden" name="player-name" value="{{ player['username'] }}">
+                </div>
                 {% endfor %}
             </ul>
         </div>
@@ -68,23 +77,46 @@
     </form>
 </div>
 
-
 <script src="/static/socket.io.min.js"></script>
 <script>
     const socket = io.connect('http://' + document.domain + ':' + location.port + '/');
-    socket.on('connect', function() {
+    socket.on('connect', function () {
         console.log('Socket connected');
     });
 
-    function updatePlayerList(team, checkbox) {
-        const playerName = checkbox.value;
-        const isChecked = checkbox.checked;
+    // Add a single click event listener to the parent container
+    document.getElementById('red-team-players').addEventListener('click', function (event) {
+        const target = event.target;
+
+        // Check if the clicked element has the 'player-item' class
+        if (target.classList.contains('player-item')) {
+            togglePlayerSelection(event, target, 'RED');
+        }
+    });
+
+    document.getElementById('black-team-players').addEventListener('click', function (event) {
+        const target = event.target;
+
+        // Check if the clicked element has the 'player-item' class
+        if (target.classList.contains('player-item')) {
+            togglePlayerSelection(event, target, 'BLACK');
+        }
+    });
+
+    function togglePlayerSelection(event, element, team) {
+        const playerName = element.innerText.trim(); // Trim to remove leading/trailing whitespaces
+
+        element.classList.toggle('selected');
+        const isChecked = element.classList.contains('selected');
+        console.log('toggling selected class')
+        console.log(isChecked)
+
 
         // Emit an event to update the server with the player list changes
         socket.emit('update_player', { team: team, playerName: playerName, isChecked: isChecked });
     }
 
-    socket.on('update_players', function(data) {
+    socket.on('update_players', function (data) {
         // Update the player lists on the client side
         const redTeamList = document.getElementById('red-team-players');
         const blackTeamList = document.getElementById('black-team-players');
@@ -99,7 +131,7 @@
 
     function updatePlayerListUI(playerList, teamPlayers, allowedPlayers, team) {
         playerList.innerHTML = '';
-    
+
         // Populate the list with updated player names
         teamPlayers.forEach(playerName => {
             createPlayerListItem(playerList, team, playerName, true);
@@ -109,33 +141,28 @@
             createPlayerListItem(playerList, team, playerName, false);
         });
     }
-    
+
     function createPlayerListItem(playerList, team, playerName, checked) {
-    
+
         const listItem = document.createElement('li');
         listItem.classList.add('player-item');
 
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.id = team + '-' + playerName;
-        checkbox.name = team + '-players';
-        checkbox.value = playerName;
-        checkbox.checked = checked;
-        checkbox.onchange = function () {
-            updatePlayerList(team, this);
-        };
+        if (checked === true) {
+            console.log(`re adding selected class for ${playerName}`)
+            listItem.classList.add('selected');
+        } else{
+            console.log(`removing selected class for ${playerName}`)
+            listItem.classList.remove('selected');
+        }
 
         const label = document.createElement('label');
-        label.classList.add('checkbox-label');
+        label.classList.add('player-item');
         label.htmlFor = team + '-' + playerName;
         label.innerText = playerName;
-
-        listItem.appendChild(checkbox);
         listItem.appendChild(label);
-
         playerList.appendChild(listItem);
     }
-    
+
     function limitSelection(checkbox) {
         const checkboxes = document.querySelectorAll('input[name="' + checkbox.name + '"]:checked');
 
@@ -175,5 +202,7 @@
         xhr.send(data);
     }
 </script>
+
 {% endblock %}
+
 </html>
