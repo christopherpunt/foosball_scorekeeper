@@ -46,7 +46,6 @@ class FoosballGame:
             self.blackTeamScore -= 1
             if self.isFinished:
                 self.isFinished = False
-                #TODO: maybe need to remove latest game save?
         elif (team == TeamEnum.RED.name) and self.redTeamScore > 0:
             self.redTeamScore -= 1      
             if self.isFinished:
