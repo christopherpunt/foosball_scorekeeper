@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify
 from flask_socketio import SocketIO
 from foosballGame import FoosballGameManager
 from player import PlayerManager
+from leaderboardStats import LeaderboardStats
 import json
 
 app = Flask(__name__)
@@ -14,6 +15,7 @@ static_files = {
 
 gameManager = FoosballGameManager(socketio)
 playerManager = PlayerManager(socketio)
+leaderboardStats = LeaderboardStats()
 
 def requestToJson(request):
     raw_data = request.data
@@ -22,6 +24,10 @@ def requestToJson(request):
 
 @app.route('/')
 def index():
+    return render_template('leaderboard.html', stats=leaderboardStats.getStats())
+
+@app.route('/join_game')
+def joinGame():
     playerManager.clearSelectedPlayers()
     redTeamPlayers = playerManager.getAllPlayers()
     blackTeamPlayers = playerManager.getAllPlayers()
@@ -57,6 +63,10 @@ def registerGoalCounter():
     team = json.get('team')
     controllerIp = json.get('controllerIp')
     return jsonify({'success': True})
+
+# @app.route('/leaderboard')
+# def leaderboard():
+#     return render_template('leaderboard.html', stats=leaderboardStats.getStats())
 
 @socketio.on('get_initial_data')
 def handle_get_initial_data():

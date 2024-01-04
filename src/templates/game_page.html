@@ -1,274 +1,262 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Foosball Game</title>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            text-align: center;
-            background-color: #f4f4f4;
-            color: #333;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            position: relative;
-        }
 
-        h2 {
-            margin-top: 20px;
-        }
+{% extends 'base.html' %}
 
-        .team-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-top: 20px;
-        }
+{% block title %}Current Game{% endblock %}
 
-        .team {
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            margin: 10px;
-            padding: 20px;
-            max-width: 300px;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+{% block styles %}
+<style>
+    .team-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 20px;
+    }
 
-        h3 {
-            color: #333;
-            margin-bottom: 10px;
-        }
+    .team {
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        margin: 10px;
+        padding: 20px;
+        max-width: 300px;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
 
-        .score-card {
-            background-color: #ddd;
-            border-radius: 5px;
-            margin: 10px 0;
-            width: 100%;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+    h3 {
+        color: #333;
+        margin-bottom: 10px;
+    }
 
-        .score {
-            font-size: 32px;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
+    .score-card {
+        background-color: #ddd;
+        border-radius: 5px;
+        margin: 10px 0;
+        width: 100%;
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
 
-        .score-buttons {
-            display: flex;
-            justify-content: space-around;
-            width: 100%;
-        }
+    .score {
+        font-size: 32px;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
 
-        button {
-            padding: 10px;
-            font-size: 16px;
-            cursor: pointer;
-            border: none;
-            border-radius: 5px;
-            width: 40%;
-        }
+    .score-buttons {
+        display: flex;
+        justify-content: space-around;
+        width: 100%;
+    }
 
-        button.plus {
-            background-color: #5cb85c;
-            color: #fff;
-        }
+    button {
+        padding: 10px;
+        font-size: 16px;
+        cursor: pointer;
+        border: none;
+        border-radius: 5px;
+        width: 40%;
+    }
 
-        button.minus {
-            background-color: #d9534f;
-            color: #fff;
-        }
+    button.plus {
+        background-color: #5cb85c;
+        color: #fff;
+    }
 
-        .red {
-            color: red
-        }
-        
-        .black {
-            color: black
-        }
-        
-        .popup {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);  /* Semi-transparent overlay */
-            justify-content: center;
-            align-items: center;
-        }
+    button.minus {
+        background-color: #d9534f;
+        color: #fff;
+    }
 
-        .popup-content {
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-            padding: 20px;
-            text-align: center;
-        }
-
-        .popup-content button {
-            margin: 10px auto; /* Auto margin horizontally centers the buttons */
-            padding: 15px;
-            font-size: 16px;
-            cursor: pointer;
-            border: none;
-            border-radius: 5px;
-            width: 80%; /* Adjust the width as needed */
-            display: block; /* Ensure buttons appear in the same column */
-        }
-
-        .popup-content button:nth-child(3) {
-            background-color: #d9534f; /* Red for the fix score button */
-            color: #fff;
-        }
-
-        .popup-content button:nth-child(4) {
-            background-color: #f0ad4e; /* Orange for the switch sides button */
-            color: #fff;
-        }
-
-        .popup-content button:nth-child(5) {
-            background-color: #5cb85c; /* Green for the third button */
-            color: #fff;
-        }
-
-    </style>
-</head>
-<body>    
-    <div class="team-container">
-        <div class="team" id="redTeam">
-            <h3 class="red">Red Team</h3>
-            <div class="score-card" id="redScoreCard">
-                <p class="score">Score: <span id="redScore"></span></p>
-                <div class="score-buttons">
-                    <button class="minus" onclick="changeScore('red', 'minus')">-</button>
-                    <button class="plus" onclick="changeScore('red', 'plus')">+</button>
-                </div>
-            </div>
-            <div>
-                <span id="redPlayer1"></span>
-            </div>
-            <div>
-                <span id="redPlayer2"></span>
-            </div>
-        </div>
-
-        <div class="team" id="blackTeam">
-            <h3 class="black">Black Team</h3>
-            <div class="score-card" id="blackScoreCard">
-                <p class="score">Score: <span id="blackScore"></span></p>
-                <div class="score-buttons">
-                    <button class="minus" onclick="changeScore('black', 'minus')">-</button>
-                    <button class="plus" onclick="changeScore('black', 'plus')">+</button>
-                </div>
-            </div>
-            <div>
-                <span id="blackPlayer1"></span>
-            </div>
-            <div>
-                <span id="blackPlayer2"></span>
-            </div>
-        </div>
-    </div>
-
-    <a href="/" style="text-decoration: none;">
-        <button style="margin-top: 20px; padding: 10px; font-size: 12px; cursor: pointer; border: none; border-radius: 5px; width: 100%; background-color: #337ab7; color: #fff;">
-            Start New Game
-        </button>
-    </a>
-
-    <div id="winningPopup" class="popup">
-        <div class="popup-content">
-            <h3 id="winningTeamText"></h3>
-            <img src="/static/img/bean-dance.gif" alt="Dancing Bean" id="winningImage" style="display: none;">
-            <button onclick="closePopup()">Fix Score</button>
-            <button onclick="switchSides()">Switch Sides</button>
-            <button onclick="confirmGameCompleted()">Game Completed</button>
-        </div>
-    </div>
-
-
-    <script src="/static/socket.io.min.js"></script>
-    <script>
-        const socket = io.connect('http://' + document.domain + ':' + location.port + '/');
-        socket.on('connect', function() {
-            console.log('Socket connected');
+    .red {
+        color: red
+    }
     
-            // Request initial data after connecting
-            socket.emit('get_initial_data');
-        });
+    .black {
+        color: black
+    }
+    
+    .popup {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);  /* Semi-transparent overlay */
+        justify-content: center;
+        align-items: center;
+    }
 
-        socket.on('update_game', function(data) {
-            console.log(data);
-            document.getElementById('redPlayer1').innerText = data.redPlayer1;
-            document.getElementById('redPlayer2').innerText = data.redPlayer2;
-            document.getElementById('redScore').innerText = data.redTeamScore;
+    .popup-content {
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        padding: 20px;
+        text-align: center;
+    }
 
-            document.getElementById('blackPlayer1').innerText = data.blackPlayer1;
-            document.getElementById('blackPlayer2').innerText = data.blackPlayer2;
-            document.getElementById('blackScore').innerText = data.blackTeamScore;
+    .popup-content button {
+        margin: 10px auto; /* Auto margin horizontally centers the buttons */
+        padding: 15px;
+        font-size: 16px;
+        cursor: pointer;
+        border: none;
+        border-radius: 5px;
+        width: 80%; /* Adjust the width as needed */
+        display: block; /* Ensure buttons appear in the same column */
+    }
 
-            if (data.isFinished){
-                displayWinningPopup(data.winningTeam);
-            }
-        });
+    .popup-content button:nth-child(3) {
+        background-color: #d9534f; /* Red for the fix score button */
+        color: #fff;
+    }
 
-        function changeScore(team, action) {
-            // Send a socket event to change the score
-            socket.emit('change_score', { team: team, action: action });
+    .popup-content button:nth-child(4) {
+        background-color: #f0ad4e; /* Orange for the switch sides button */
+        color: #fff;
+    }
+
+    .popup-content button:nth-child(5) {
+        background-color: #5cb85c; /* Green for the third button */
+        color: #fff;
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="team-container">
+    <div class="team" id="redTeam">
+        <h3 class="red">Red Team</h3>
+        <div class="score-card" id="redScoreCard">
+            <p class="score">Score: <span id="redScore"></span></p>
+            <div class="score-buttons">
+                <button class="minus" onclick="changeScore('red', 'minus')">-</button>
+                <button class="plus" onclick="changeScore('red', 'plus')">+</button>
+            </div>
+        </div>
+        <div>
+            <span id="redPlayer1"></span>
+        </div>
+        <div>
+            <span id="redPlayer2"></span>
+        </div>
+    </div>
+
+    <div class="team" id="blackTeam">
+        <h3 class="black">Black Team</h3>
+        <div class="score-card" id="blackScoreCard">
+            <p class="score">Score: <span id="blackScore"></span></p>
+            <div class="score-buttons">
+                <button class="minus" onclick="changeScore('black', 'minus')">-</button>
+                <button class="plus" onclick="changeScore('black', 'plus')">+</button>
+            </div>
+        </div>
+        <div>
+            <span id="blackPlayer1"></span>
+        </div>
+        <div>
+            <span id="blackPlayer2"></span>
+        </div>
+    </div>
+</div>
+
+<a href="/join-game">
+    <button>
+        Start New Game
+    </button>
+</a>
+
+<div id="winningPopup" class="popup">
+    <div class="popup-content">
+        <h3 id="winningTeamText"></h3>
+        <img src="/static/img/bean-dance.gif" alt="Dancing Bean" id="winningImage" style="display: none;">
+        <button onclick="closePopup()">Fix Score</button>
+        <button onclick="switchSides()">Switch Sides</button>
+        <button onclick="confirmGameCompleted()">Game Completed</button>
+    </div>
+</div>
+
+
+<script src="/static/socket.io.min.js"></script>
+<script>
+    const socket = io.connect('http://' + document.domain + ':' + location.port + '/');
+    socket.on('connect', function() {
+        console.log('Socket connected');
+
+        // Request initial data after connecting
+        socket.emit('get_initial_data');
+    });
+
+    socket.on('update_game', function(data) {
+        console.log(data);
+        document.getElementById('redPlayer1').innerText = data.redPlayer1;
+        document.getElementById('redPlayer2').innerText = data.redPlayer2;
+        document.getElementById('redScore').innerText = data.redTeamScore;
+
+        document.getElementById('blackPlayer1').innerText = data.blackPlayer1;
+        document.getElementById('blackPlayer2').innerText = data.blackPlayer2;
+        document.getElementById('blackScore').innerText = data.blackTeamScore;
+
+        if (data.isFinished){
+            displayWinningPopup(data.winningTeam);
+        }
+    });
+
+    function changeScore(team, action) {
+        // Send a socket event to change the score
+        socket.emit('change_score', { team: team, action: action });
+    }
+
+    function displayWinningPopup(winningTeam) {
+        const popup = document.getElementById('winningPopup');
+        const winningTeamText = document.getElementById('winningTeamText');
+        const winningImage = document.getElementById('winningImage');
+
+        winningTeamText.innerText = `${winningTeam} Team Wins!`;
+
+        // Check if any team's score is 0
+        const redScore = parseInt(document.getElementById('redScore').innerText);
+        const blackScore = parseInt(document.getElementById('blackScore').innerText);
+
+        if (redScore === 0 || blackScore === 0) {
+            winningImage.style.display = 'block';
+        } else {
+            winningImage.style.display = 'none';
         }
 
-        function displayWinningPopup(winningTeam) {
-            const popup = document.getElementById('winningPopup');
-            const winningTeamText = document.getElementById('winningTeamText');
-            const winningImage = document.getElementById('winningImage');
+        popup.style.display = 'flex';  // Use flex to center the popup
+    }
 
-            winningTeamText.innerText = `${winningTeam} Team Wins!`;
+    function closePopup() {
+        const popup = document.getElementById('winningPopup');
+        popup.style.display = 'none';
+    }
 
-            // Check if any team's score is 0
-            const redScore = parseInt(document.getElementById('redScore').innerText);
-            const blackScore = parseInt(document.getElementById('blackScore').innerText);
+    function switchSides() {
+        const popup = document.getElementById('winningPopup');
+        popup.style.display = 'none';
 
-            if (redScore === 0 || blackScore === 0) {
-                winningImage.style.display = 'block';
-            } else {
-                winningImage.style.display = 'none';
-            }
+        socket.emit('switch_sides');
+    }
+    
+    function confirmGameCompleted() {
+        const popup = document.getElementById('winningPopup');
+        popup.style.display = 'none';
 
-            popup.style.display = 'flex';  // Use flex to center the popup
-        }
+        socket.emit('game_completed')
+        window.location.pathname = ("/")
+    }
+    
+</script>
 
-        function closePopup() {
-            const popup = document.getElementById('winningPopup');
-            popup.style.display = 'none';
-        }
+{% endblock %}
 
-        function switchSides() {
-            const popup = document.getElementById('winningPopup');
-            popup.style.display = 'none';
-
-            socket.emit('switch_sides');
-        }
-        
-        function confirmGameCompleted() {
-            const popup = document.getElementById('winningPopup');
-            popup.style.display = 'none';
-
-            socket.emit('game_completed')
-            window.location.pathname = ("/")
-        }
-        
-    </script>
-</body>
 </html>
