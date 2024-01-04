@@ -6,24 +6,71 @@
 
 {% block styles %}
 <style>
-    h1 {
-        text-align: center;
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
     }
 
-    table {
-        border-collapse: collapse;
-        width: 80%;
+    .container {
+        width: 30%;
+        min-width: 300px;
         margin: 20px auto;
     }
 
-    th, td {
+    h2 {
+        text-align: center;
+    }
+
+    .card {
+        background-color: #fff;
         border: 1px solid #ddd;
-        padding: 8px;
-        text-align: left;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .players-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .players-list-item {
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+        margin-bottom: 5px;
+        border-radius: 5px;
+    }
+
+    .players-list-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+
+    .form-card {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        padding: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    input {
+        width: 100%;
+        padding: 10px;
+        box-sizing: border-box;
+        border: 1px solid #ddd;
+        border-radius: 5px;
     }
 
     button {
-        margin-top: 20px;
+        display: block;
+        width: 100%;
         padding: 10px;
         font-size: 12px;
         cursor: pointer;
@@ -36,20 +83,28 @@
 {% endblock %}
 
 {% block content %}
-<h2>Players</h2>
-<div>
-    {% for player in players %}
-        <div>
-            <label>{{ player['username'] }}</label>
-        </div>
-    {% endfor %}
+<div class="container">
+    <h2>Players</h2>
+
+    <div class="card">
+        <ul class="players-list">
+            {% for player in players %}
+                <li class="players-list-item">{{ player['username'] }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="card form-card">
+        <form id="add-user-form">
+            <div class="form-group">
+                <label for="new-username">New Username:</label>
+                <input type="text" id="new-username" name="new-username" required>
+            </div>
+
+            <button type="button" onclick="addUser()">Add User</button>
+        </form>
+    </div>
 </div>
-<form id="add-user-form">
-    <label for="new-username">New Username:</label>
-    <input type="text" id="new-username" name="new-username" required>
-    
-    <button type="button" onclick="addUser()">Add User</button>    
-</form>
 
 <script>
     function addUser() {
@@ -64,7 +119,7 @@
                 const response = JSON.parse(xhr.responseText);
                 if (response.success) {
                     newUsernameInput.value = '';
-                    location.reload();
+                    location.reload(); // Refresh the page after successfully adding a new player
                 } else {
                     alert(`Failed to join the game. ${response.message}`);
                 }
@@ -74,7 +129,6 @@
         const data = JSON.stringify({ newUser: newUsername });
         xhr.send(data);
     }
-    
 </script>
 
 {% endblock %}
