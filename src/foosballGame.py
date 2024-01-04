@@ -22,7 +22,7 @@ class FoosballGame:
         self.isFinished = False
         self.startTime = datetime.now().strftime('%m/%d/%Y, %I:%M:%S%p')
 
-        self._db = TinyDB('instance/FoosballGames.json')
+        self._db = TinyDB('instance/FoosballGames.json', indent=2)
 
     def addScore(self, team):
         if self.isFinished:

@@ -16,7 +16,7 @@ class PlayerManager:
         self.socketio = socketio
         self.redSelectedPlayers = []
         self.blackSelectedPlayers = []
-        self._db = TinyDB('instance/players.json')
+        self._db = TinyDB('instance/players.json', indent=2)
 
     def getAllPlayers(self):
         players = []
