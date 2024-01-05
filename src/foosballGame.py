@@ -12,10 +12,10 @@ class TeamEnum(Enum):
 class FoosballGame:
 
     def __init__(self, redPlayer1, blackPlayer1, redPlayer2 = None, blackPlayer2 = None):
-        self.redPlayer1 = redPlayer1.username
-        self.blackPlayer1 = blackPlayer1.username
-        self.redPlayer2 = redPlayer2.username if redPlayer2 else None
-        self.blackPlayer2 = blackPlayer2.username if blackPlayer2 else None
+        self.redPlayer1 = redPlayer1
+        self.blackPlayer1 = blackPlayer1
+        self.redPlayer2 = redPlayer2
+        self.blackPlayer2 = blackPlayer2
         self.blackTeamScore = 0
         self.redTeamScore = 0
         self.winningTeam = None
@@ -76,19 +76,22 @@ class FoosballGameManager:
         self.socketio = socketio
     
     def startGame(self, redSelectedPlayers, blackSelectedPlayers):
+        # Check for uniqueness of players in both teams
+        allPlayers = redSelectedPlayers + blackSelectedPlayers
+        if len(set(allPlayers)) == len(allPlayers):
+            # Check for the required number of players in each team
+            if 1 <= len(redSelectedPlayers) <= 2 and 1 <= len(blackSelectedPlayers) <= 2:
+                redPlayer1 = redSelectedPlayers[0]
+                redPlayer2 = redSelectedPlayers[1] if len(redSelectedPlayers) == 2 else None
 
-        #player1 should never be None, need to check if player2 exists, otherwise set as None
-        if len(redSelectedPlayers) == 2:
-            redPlayer2 = redSelectedPlayers[1]
-        else:
-            redPlayer2 = None
-        if len(blackSelectedPlayers) == 2:
-            blackPlayer2 = blackSelectedPlayers[1]
-        else:
-            blackPlayer2 = None
+                blackPlayer1 = blackSelectedPlayers[0]
+                blackPlayer2 = blackSelectedPlayers[1] if len(blackSelectedPlayers) == 2 else None
 
-        self.currentGame = FoosballGame(redPlayer1=redSelectedPlayers[0], blackPlayer1=blackSelectedPlayers[0], redPlayer2=redPlayer2, blackPlayer2=blackPlayer2)
-    
+                self.currentGame = FoosballGame(redPlayer1=redPlayer1, blackPlayer1=blackPlayer1, redPlayer2=redPlayer2, blackPlayer2=blackPlayer2)
+                return jsonify({'success': True, 'message': 'Game Started'})
+
+        return jsonify({'success': False, 'message': 'Could not start game, teams not ready or players not unique'})
+
     def updateCurrentGameData(self):
         if self.currentGame is not None:
             self.currentGame.isGameFinished()
@@ -98,5 +101,12 @@ class FoosballGameManager:
         if self.currentGame.isFinished:
             saveData = self.currentGame.getGameData()
             self.currentGame._db.insert(saveData)
-
         self.currentGame = None
+
+    def getRedPlayers(self):
+        if self.currentGame is not None:
+            return [player for player in [self.currentGame.redPlayer1, self.currentGame.redPlayer2] if player is not None]
+
+    def getBlackPlayers(self):
+        if self.currentGame is not None:
+            return [player for player in [self.currentGame.blackPlayer1, self.currentGame.blackPlayer2] if player is not None]

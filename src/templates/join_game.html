@@ -12,7 +12,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        height: 90vh; /* Adjust the height as needed */
+        height: 90vh;
     }
 
     .team-card {
@@ -51,11 +51,10 @@
 
         <div class="team-card">
             <h2 class="red">Red Team</h2>
-            <ul class="player-list" id="red-team-players">
-                {% for player in redTeamPlayers %}
-                <div class="player-item">
+            <ul class="player-list" data-team="RED">
+                {% for player in players %}
+                <div class="player-item" data-player="{{ player['username'] }}">
                     {{ player['username'] }}
-                    <input class="player-name" type="hidden" name="player-name" value="{{ player['username'] }}">
                 </div>
                 {% endfor %}
             </ul>
@@ -63,11 +62,10 @@
 
         <div class="team-card">
             <h2 class="black">Black Team</h2>
-            <ul class="player-list" id="black-team-players">
-                {% for player in blackTeamPlayers %}
-                <div class="player-item">
+            <ul class="player-list" data-team="BLACK">
+                {% for player in players %}
+                <div class="player-item" data-player="{{ player['username'] }}">
                     {{ player['username'] }}
-                    <input class="player-name" type="hidden" name="player-name" value="{{ player['username'] }}">
                 </div>
                 {% endfor %}
             </ul>
@@ -77,111 +75,52 @@
     </form>
 </div>
 
-<script src="/static/socket.io.min.js"></script>
 <script>
-    const socket = io.connect('http://' + document.domain + ':' + location.port + '/');
-    socket.on('connect', function () {
-        console.log('Socket connected');
-    });
-
-    // Add a single click event listener to the parent container
-    document.getElementById('red-team-players').addEventListener('click', function (event) {
-        const target = event.target;
-
-        // Check if the clicked element has the 'player-item' class
-        if (target.classList.contains('player-item')) {
-            togglePlayerSelection(event, target, 'RED');
-        }
-    });
-
-    document.getElementById('black-team-players').addEventListener('click', function (event) {
-        const target = event.target;
-
-        // Check if the clicked element has the 'player-item' class
-        if (target.classList.contains('player-item')) {
-            togglePlayerSelection(event, target, 'BLACK');
-        }
-    });
-
-    function togglePlayerSelection(event, element, team) {
-        const playerName = element.innerText.trim(); // Trim to remove leading/trailing whitespaces
-
-        element.classList.toggle('selected');
-        const isChecked = element.classList.contains('selected');
-        console.log('toggling selected class')
-        console.log(isChecked)
-
-
-        // Emit an event to update the server with the player list changes
-        socket.emit('update_player', { team: team, playerName: playerName, isChecked: isChecked });
+    const selectedPlayers = {
+        RED: [],
+        BLACK: []
     }
 
-    socket.on('update_players', function (data) {
-        // Update the player lists on the client side
-        const redTeamList = document.getElementById('red-team-players');
-        const blackTeamList = document.getElementById('black-team-players');
-
-        console.log(data);
-
-        // Assuming data.redTeamPlayers and data.blackTeamPlayers are arrays of player names
-        updatePlayerListUI(redTeamList, data.redTeamPlayers, data.allowedRedTeamPlayers, 'red');
-
-        updatePlayerListUI(blackTeamList, data.blackTeamPlayers, data.allowedRedTeamPlayers, 'black');
+    document.querySelectorAll('.player-item').forEach(item => {
+        item.addEventListener('click', () => handlePlayerSelection(item));
     });
 
-    function updatePlayerListUI(playerList, teamPlayers, allowedPlayers, team) {
-        playerList.innerHTML = '';
+    function handlePlayerSelection(element) {
+        const playerName = element.dataset.player;
+        const team = element.closest('.player-list').dataset.team;
+        const selected = element.classList.contains('selected');
+        console.log(`player ${playerName} selected for ${team} team. ${!selected}`)
 
-        // Populate the list with updated player names
-        teamPlayers.forEach(playerName => {
-            createPlayerListItem(playerList, team, playerName, true);
-        });
-
-        allowedPlayers.forEach(playerName => {
-            createPlayerListItem(playerList, team, playerName, false);
-        });
-    }
-
-    function createPlayerListItem(playerList, team, playerName, checked) {
-
-        const listItem = document.createElement('li');
-        listItem.classList.add('player-item');
-
-        if (checked === true) {
-            console.log(`re adding selected class for ${playerName}`)
-            listItem.classList.add('selected');
-        } else{
-            console.log(`removing selected class for ${playerName}`)
-            listItem.classList.remove('selected');
+        if (selected) {
+            // Deselect player
+            element.classList.remove('selected');
+            const index = selectedPlayers[team].indexOf(playerName);
+            if (index !== -1) {
+                selectedPlayers[team].splice(index, 1);
+            }
+        } else {
+            // Select player
+            element.classList.add('selected');
+            selectedPlayers[team].push(playerName);
         }
 
-        const label = document.createElement('label');
-        label.classList.add('player-item');
-        label.htmlFor = team + '-' + playerName;
-        label.innerText = playerName;
-        listItem.appendChild(label);
-        playerList.appendChild(listItem);
+        console.log(`selected players ${JSON.stringify(selectedPlayers)}`)
     }
 
-    function limitSelection(checkbox) {
-        const checkboxes = document.querySelectorAll('input[name="' + checkbox.name + '"]:checked');
+    // function updatePlayerUI() {
+    //     Object.values(allowedPlayers).forEach(teamPlayers => {
+    //         teamPlayers.forEach(item => {
+    //             const playerName = item.dataset.player;
+    //             const team = item.closest('.player-list').dataset.team;
 
-        if (checkboxes.length > 2) {
-            checkbox.checked = false;
-        }
-    }
+    //             item.classList.toggle('selected', selectedPlayers[team].includes(playerName));
+    //             item.disabled = !allowedPlayers[team].includes(item);
+    //         });
+    //     });
+    // }
 
     function startGame() {
-        // Initialize the arrays
-        const redTeamPlayers = [];
-        const blackTeamPlayers = [];
-
-        // Get selected players for each team
-        const blackCheckboxes = document.querySelectorAll('input[name="black-players"]:checked');
-        const redCheckboxes = document.querySelectorAll('input[name="red-players"]:checked');
-
-        Array.from(blackCheckboxes).forEach(checkbox => blackTeamPlayers.push(checkbox.value));
-        Array.from(redCheckboxes).forEach(checkbox => redTeamPlayers.push(checkbox.value));
+        console.log(selectedPlayers);
 
         const xhr = new XMLHttpRequest();
         xhr.open('POST', '/start_game', true);
@@ -193,16 +132,18 @@
                     // Redirect to the game page on successful join
                     window.location.href = '/game_page';
                 } else {
-                    alert('Failed to start the game. Please try again.');
+                    alert(`${response.message}`);
                 }
             }
         };
 
-        const data = JSON.stringify({ redTeamPlayers: redTeamPlayers, blackTeamPlayers: blackTeamPlayers });
-        xhr.send(data);
+        xhr.send(JSON.stringify(selectedPlayers));
     }
+
+    document.querySelector('button').addEventListener('click', startGame);
 </script>
 
 {% endblock %}
+
 
 </html>

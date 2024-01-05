@@ -32,17 +32,12 @@ def getAllPlayers():
 
 @app.route('/join_game')
 def joinGame():
-    playerManager.clearSelectedPlayers()
-    redTeamPlayers = playerManager.getAllPlayers()
-    blackTeamPlayers = playerManager.getAllPlayers()
-    return render_template('join_game.html', redTeamPlayers=redTeamPlayers, blackTeamPlayers=blackTeamPlayers)
+    return render_template('join_game.html', players=playerManager.getAllPlayers())
 
 @app.route('/start_game', methods=['POST'])
 def start_game():
-    if playerManager.areSelectedPlayersReady():
-        gameManager.startGame(playerManager.getRedTeamSelectedPlayers(), playerManager.getBlackTeamSelectedPlayers())
-        return jsonify({'success': True})
-    return jsonify({'success': False})
+    json = requestToJson(request)
+    return gameManager.startGame(json.get('RED'), json.get('BLACK'))
 
 @app.route('/add_user', methods=['POST'])
 def addUser():
@@ -50,7 +45,9 @@ def addUser():
 
 @app.route('/game_page')
 def game_page():
-    return render_template('game_page.html')
+    if gameManager.currentGame is not None:
+        return render_template('game_page.html')
+    return joinGame()
 
 @app.route('/add_score', methods=['POST'])
 def addScore():
@@ -67,10 +64,6 @@ def registerGoalCounter():
     team = json.get('team')
     controllerIp = json.get('controllerIp')
     return jsonify({'success': True})
-
-# @app.route('/leaderboard')
-# def leaderboard():
-#     return render_template('leaderboard.html', stats=leaderboardStats.getStats())
 
 @socketio.on('get_initial_data')
 def handle_get_initial_data():
@@ -90,15 +83,12 @@ def handle_change_score(data):
             print('incorrect action')
         gameManager.updateCurrentGameData()
 
-@socketio.on('update_player')
-def handle_update_player(data):
-    print(data)
-    playerManager.updatePlayers(data)
-
 @socketio.on('switch_sides')
 def handle_switch_sides():
+    redPlayers = gameManager.getRedPlayers()
+    blackPlayers = gameManager.getBlackPlayers()
     gameManager.gameCompleted()
-    gameManager.startGame(playerManager.getBlackTeamSelectedPlayers(), playerManager.getRedTeamSelectedPlayers())
+    gameManager.startGame(blackPlayers, redPlayers)
     gameManager.updateCurrentGameData()
     return render_template('game_page.html')
 
