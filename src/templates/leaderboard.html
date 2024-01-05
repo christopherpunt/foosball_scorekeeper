@@ -10,10 +10,23 @@
         text-align: center;
     }
 
+    main {
+        display: flex;
+        justify-content: space-around;
+    }
+
+    .table-card {
+        width: 40%;
+        margin: 20px;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
     table {
         border-collapse: collapse;
-        width: 80%;
-        margin: 20px auto;
+        width: 100%;
     }
 
     th, td {
@@ -38,29 +51,56 @@
 {% block content %}
     <h1>Leaderboard!</h1>
     <main>
-        <h2>Top Players</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Player</th>
-                    <th>Wins</th>
-                    <th>Losses</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for player, stats in stats.playerStats %}
+        <div class="table-card">
+            <h2>Top Players</h2>
+            <table>
+                <thead>
                     <tr>
-                        <td>{{ player }}</td>
-                        <td>{{ stats.wins }}</td>
-                        <td>{{ stats.losses }}</td>
+                        <th>Player</th>
+                        <th>Wins</th>
+                        <th>Losses</th>
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    {% for player, stats in stats.playerStats %}
+                        <tr>
+                            <td>{{ player }}</td>
+                            <td>{{ stats.wins }}</td>
+                            <td>{{ stats.losses }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
 
-        <a href="/join_game">
-            <button type="button">Start New Game</button>
-        </a>
+        <!-- Add the table for top teams here -->
+        <div class="table-card">
+            <h2>Top Teams</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Player 1</th>
+                        <th>Player 2</th>
+                        <th>Wins</th>
+                        <th>Losses</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for team, team_stats in stats.teamStats %}
+                        <tr>
+                            <td>{{ team[0] }}</td>
+                            <td>{{ team[1] }}</td>
+                            <td>{{ team_stats.wins }}</td>
+                            <td>{{ team_stats.losses }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </main>
+
+    <a href="/join_game">
+        <button type="button">Start New Game</button>
+    </a>
 {% endblock %}
 </html>

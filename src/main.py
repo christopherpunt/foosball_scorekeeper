@@ -24,7 +24,9 @@ def requestToJson(request):
 
 @app.route('/')
 def index():
-    return render_template('leaderboard.html', stats=leaderboardStats.getStats())
+    stats = leaderboardStats.getStats()
+    print(stats)
+    return render_template('leaderboard.html', stats=stats)
 
 @app.route('/players')
 def getAllPlayers():
