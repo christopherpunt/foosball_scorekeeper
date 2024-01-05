@@ -13,12 +13,15 @@
     main {
         display: flex;
         justify-content: space-around;
+        flex-wrap: wrap; /* Enable wrapping for flex items */
     }
 
     .table-card {
-        width: 40%;
-        margin: 20px;
-        padding: 15px;
+        width: 30%;
+        min-width: 300px;
+        margin: 10px;
+        padding: 10px;
+        margin: 5px;
         border: 1px solid #ddd;
         border-radius: 5px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -45,6 +48,7 @@
         background-color: #337ab7;
         color: #fff;
     }
+
 </style>
 {% endblock %}
 
@@ -79,8 +83,7 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Player 1</th>
-                        <th>Player 2</th>
+                        <th>Players</th>
                         <th>Wins</th>
                         <th>Losses</th>
                     </tr>
@@ -88,8 +91,33 @@
                 <tbody>
                     {% for team, team_stats in stats.teamStats %}
                         <tr>
-                            <td>{{ team[0] }}</td>
-                            <td>{{ team[1] }}</td>
+                            <td>{{ team[0] }} - {{ team[1] }}</td>
+                            <td>{{ team_stats.wins }}</td>
+                            <td>{{ team_stats.losses }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+
+        <!-- Add the table for top teams here -->
+        <div class="table-card">
+            <h2>Top Teams Per Side</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Players</th>
+                        <th>Team</th>
+                        <th>Wins</th>
+                        <th>Losses</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for team, team_stats in stats.teamStatsWithTeamInfo %}
+                        <tr>
+                            <td>{{ team[0] }} - {{ team[1] }}</td>
+                            <td>{{ team[2] }}</td>
                             <td>{{ team_stats.wins }}</td>
                             <td>{{ team_stats.losses }}</td>
                         </tr>

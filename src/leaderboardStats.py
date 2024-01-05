@@ -6,7 +6,8 @@ class LeaderboardStats:
         self._db = TinyDB("instance/FoosballGames.json")
 
         self.playerStats = self.getPlayerStats()
-        self.teamStats = self.getTeamStats()
+        self.teamStats = self.getTeamStats(False)
+        self.teamStatsWithTeamInfo = self.getTeamStats(True)
 
     def getStats(self):
         self.updateStats()
@@ -14,7 +15,8 @@ class LeaderboardStats:
 
     def updateStats(self):
         self.playerStats = self.getPlayerStats()
-        self.teamStats = self.getTeamStats()
+        self.teamStats = self.getTeamStats(False)
+        self.teamStatsWithTeamInfo = self.getTeamStats(True)
 
     def getPlayerStats(self):
         # Fetch data from the TinyDB
@@ -42,7 +44,7 @@ class LeaderboardStats:
         # Sort players based on wins and losses
         return sorted(player_stats.items(), key=lambda x: (x[1]['wins'], -x[1]['losses']), reverse=True)
 
-    def getTeamStats(self):
+    def getTeamStats(self, includeTeam):
         # Initialize a defaultdict to store team statistics
         team_stats = defaultdict(lambda: {'wins': 0, 'losses': 0})
 
@@ -60,12 +62,13 @@ class LeaderboardStats:
                 red_team.sort()
                 black_team.sort()
 
-                # Update team statistics for all player combinations and team assignments
-                team_stats[(red_team[0], red_team[1])]['wins' if winning_team == 'RED' else 'losses'] += 1
-                team_stats[(black_team[0], black_team[1])]['wins' if winning_team == 'BLACK' else 'losses'] += 1
-
-                team_stats[(black_team[0], black_team[1])]['losses' if winning_team == 'RED' else 'wins'] += 1
-                team_stats[(red_team[0], red_team[1])]['losses' if winning_team == 'BLACK' else 'wins'] += 1
+                if includeTeam:
+                    # Update team statistics for all player combinations and team assignments
+                    team_stats[(black_team[0], black_team[1], 'RED')]['losses' if winning_team == 'RED' else 'wins'] += 1
+                    team_stats[(red_team[0], red_team[1], 'BLACK')]['losses' if winning_team == 'BLACK' else 'wins'] += 1
+                else:
+                    team_stats[(red_team[0], red_team[1])]['wins' if winning_team == 'RED' else 'losses'] += 1
+                    team_stats[(black_team[0], black_team[1])]['wins' if winning_team == 'BLACK' else 'losses'] += 1
 
         # Sort teams based on wins and losses
         sorted_teams = sorted(team_stats.items(), key=lambda x: (x[1]['wins'], -x[1]['losses']), reverse=True)
