@@ -11,13 +11,12 @@
     body {
         font-family: 'Arial', sans-serif;
         background-color: #f4f4f4;
-        margin: 0;
         padding: 0;
     }
 
     .team-container {
         max-width: 600px;
-        margin: 20px auto;
+        margin: 10px auto;
         display: flex;
         justify-content: space-between;
     }
@@ -26,21 +25,23 @@
         background-color: #fff;
         border-radius: 10px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        padding: 20px;
-        width: 48%;
+        padding: 10px;
+        padding-top: 0%;
+        margin: 10px;
+        width: 50%;
         display: flex;
         flex-direction: column;
-        align-items: flex-start; /* Align items to the left */
+        align-items: center;
     }
 
     .team:first-child {
         order: 1;
-        text-align: left;
+        text-align: center;
     }
 
     .team:last-child {
         order: 2;
-        text-align: right;
+        text-align: center;
     }
 
     h2 {
@@ -51,19 +52,17 @@
     .player-list {
         list-style: none;
         padding: 0;
-        display: flex;
-        flex-wrap: wrap; /* Allow players to wrap to a new line if there are too many */
-        justify-content: flex-start; /* Align players to the left */
+        margin: 5px;
     }
 
     .player-item {
         margin: 5px;
         cursor: pointer;
-        font-size: 16px;
-        padding: 8px 12px;
-        border: 2px solid #ccc;
+        font-size: 18px;
+        padding: 8px 8px;
+        border: 1px solid #ccc;
         border-radius: 5px;
-        transition: background-color 0.3s;
+        transition: background-color 0.5s;
         display: inline-block;
     }
 
@@ -73,6 +72,12 @@
 
     .player-item.selected {
         background-color: #269bda;
+    }
+    .player-item.notAvailable {
+        background-color: #d3d3d3;
+        color: #888;
+        cursor: not-allowed;
+        pointer-events: none;
     }
 
     button {
@@ -100,7 +105,7 @@
         <h2 class="red">Red Team</h2>
         <ul class="player-list" data-team="RED">
             {% for player in players %}
-            <div class="player-item" data-player="{{ player['username'] }}">
+            <div class="player-item" data-player="{{ player['username'] }}" data-team="RED">
                 {{ player['username'] }}
             </div>
             {% endfor %}
@@ -111,7 +116,7 @@
         <h2 class="black">Black Team</h2>
         <ul class="player-list" data-team="BLACK">
             {% for player in players %}
-            <div class="player-item" data-player="{{ player['username'] }}">
+            <div class="player-item" data-player="{{ player['username'] }}" data-team="BLACK">
                 {{ player['username'] }}
             </div>
             {% endfor %}
@@ -132,9 +137,8 @@
 
     function handlePlayerSelection(element) {
         const playerName = element.dataset.player;
-        const team = element.closest('.player-list').dataset.team;
+        const team = element.dataset.team;
         const selected = element.classList.contains('selected');
-        console.log(`player ${playerName} selected for ${team} team. ${!selected}`)
 
         if (selected) {
             // Deselect player
@@ -143,8 +147,25 @@
             if (index !== -1) {
                 selectedPlayers[team].splice(index, 1);
             }
+            const oppositeTeam = team === 'RED' ? 'BLACK' : 'RED';
+            const oppositePlayerItem = document.querySelector(`.player-item[data-player="${playerName}"][data-team="${oppositeTeam}"]`);
+            if (oppositePlayerItem && oppositePlayerItem.classList.contains('notAvailable')) {
+                oppositePlayerItem.classList.remove('notAvailable')
+            }
         } else {
             // Select player
+            // Check if the player is not selected in the opposite team
+            if (selectedPlayers[team].length >= 2){
+                return; // don't select more than 2 players on a team
+            }
+
+            const oppositeTeam = team === 'RED' ? 'BLACK' : 'RED';
+            const oppositePlayerItem = document.querySelector(`.player-item[data-player="${playerName}"][data-team="${oppositeTeam}"]`);
+            if (oppositePlayerItem && oppositePlayerItem.classList.contains('selected')) {
+                return; // Do not select if already selected in the opposite team
+            }
+            oppositePlayerItem.classList.add('notAvailable')
+
             element.classList.add('selected');
             selectedPlayers[team].push(playerName);
         }
@@ -175,7 +196,6 @@
 
     document.querySelector('button').addEventListener('click', startGame);
 </script>
-
 
 {% endblock %}
 
