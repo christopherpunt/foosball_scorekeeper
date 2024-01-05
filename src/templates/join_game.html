@@ -8,73 +8,122 @@
 
 {% block styles %}
 <style>
-    .team-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 90vh;
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
     }
 
-    .team-card {
-        border: 1px solid #ccc;
-        width: 30%;
-        min-width: 300px;
-        border-radius: 5px;
-        padding: 10px;
+    .team-container {
+        max-width: 600px;
+        margin: 20px auto;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .team {
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        width: 48%;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start; /* Align items to the left */
+    }
+
+    .team:first-child {
+        order: 1;
+        text-align: left;
+    }
+
+    .team:last-child {
+        order: 2;
+        text-align: right;
+    }
+
+    h2 {
+        font-size: 24px;
         margin-bottom: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
 
     .player-list {
         list-style: none;
         padding: 0;
+        display: flex;
+        flex-wrap: wrap; /* Allow players to wrap to a new line if there are too many */
+        justify-content: flex-start; /* Align players to the left */
     }
 
     .player-item {
-        margin-bottom: 10px;
+        margin: 5px;
         cursor: pointer;
-        transition: background-color 0.3s;
-        padding: 10px;
         border-radius: 5px;
-        user-select: text;
     }
 
     .player-item.selected {
-        background-color: #e6f7ff;
+        background-color: #269bda;
+    }
+
+    .player-name {
+        font-size: 16px;
+        padding: 8px 12px;
+        border: 2px solid #ccc;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+        display: inline-block;
+    }
+
+    .player-name:hover {
+        background-color: #269bda;
+    }
+
+    button {
+        margin-top: 20px;
+        padding: 10px 20px;
+        font-size: 18px;
+        background-color: #2ecc71;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    button:hover {
+        background-color: #27ae60;
     }
 </style>
 {% endblock %}
 
 {% block content %}
+<h2>Choose Players</h2>
 <div class="team-container">
-    <form id="join-form">
+    <div class="team">
+        <h2 class="red">Red Team</h2>
+        <ul class="player-list" data-team="RED">
+            {% for player in players %}
+            <div class="player-item" data-player="{{ player['username'] }}">
+                <span class="player-name" onclick="handlePlayerSelection(this)">{{ player['username'] }}</span>
+            </div>
+            {% endfor %}
+        </ul>
+    </div>
 
-        <div class="team-card">
-            <h2 class="red">Red Team</h2>
-            <ul class="player-list" data-team="RED">
-                {% for player in players %}
-                <div class="player-item" data-player="{{ player['username'] }}">
-                    {{ player['username'] }}
-                </div>
-                {% endfor %}
-            </ul>
-        </div>
-
-        <div class="team-card">
-            <h2 class="black">Black Team</h2>
-            <ul class="player-list" data-team="BLACK">
-                {% for player in players %}
-                <div class="player-item" data-player="{{ player['username'] }}">
-                    {{ player['username'] }}
-                </div>
-                {% endfor %}
-            </ul>
-        </div>
-
-        <button type="button" onclick="startGame()">Start Game</button>
-    </form>
+    <div class="team">
+        <h2 class="black">Black Team</h2>
+        <ul class="player-list" data-team="BLACK">
+            {% for player in players %}
+            <div class="player-item" data-player="{{ player['username'] }}">
+                <span class="player-name" onclick="handlePlayerSelection(this)">{{ player['username'] }}</span>
+            </div>
+            {% endfor %}
+        </ul>
+    </div>
 </div>
 
+<button type="button" onclick="startGame()">Start Game</button>
 <script>
     const selectedPlayers = {
         RED: [],
@@ -107,18 +156,6 @@
         console.log(`selected players ${JSON.stringify(selectedPlayers)}`)
     }
 
-    // function updatePlayerUI() {
-    //     Object.values(allowedPlayers).forEach(teamPlayers => {
-    //         teamPlayers.forEach(item => {
-    //             const playerName = item.dataset.player;
-    //             const team = item.closest('.player-list').dataset.team;
-
-    //             item.classList.toggle('selected', selectedPlayers[team].includes(playerName));
-    //             item.disabled = !allowedPlayers[team].includes(item);
-    //         });
-    //     });
-    // }
-
     function startGame() {
         console.log(selectedPlayers);
 
@@ -144,6 +181,5 @@
 </script>
 
 {% endblock %}
-
 
 </html>
