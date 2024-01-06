@@ -22,7 +22,7 @@ class PlayerManager:
         players = []
         for player_data in self._db.all():
             players.append(Player(**player_data))
-        return players
+        return sorted(players, key=lambda x: (x.username.lower()))
 
     def findExistingPlayer(self, playerName):
         User = Query()
