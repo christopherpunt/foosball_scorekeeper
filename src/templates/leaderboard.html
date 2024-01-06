@@ -1,0 +1,134 @@
+<!-- leaderboard.html -->
+
+{% extends 'base.html' %}
+
+{% block title %}Leaderboard{% endblock %}
+
+{% block styles %}
+<style>
+    h1 {
+        text-align: center;
+    }
+
+    main {
+        display: flex;
+        justify-content: space-around;
+        flex-wrap: wrap; /* Enable wrapping for flex items */
+    }
+
+    .table-card {
+        width: 30%;
+        min-width: 300px;
+        margin: 10px;
+        padding: 10px;
+        margin: 5px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+
+    button {
+        margin-top: 20px;
+        padding: 10px;
+        font-size: 12px;
+        cursor: pointer;
+        border: none;
+        border-radius: 5px;
+        background-color: #337ab7;
+        color: #fff;
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+    <h1>Leaderboard!</h1>
+    <main>
+        <div class="table-card">
+            <h2>Top Players</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Player</th>
+                        <th>Wins</th>
+                        <th>Losses</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for player, stats in stats.playerStats %}
+                        <tr>
+                            <td>{{ player }}</td>
+                            <td>{{ stats.wins }}</td>
+                            <td>{{ stats.losses }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Add the table for top teams here -->
+        <div class="table-card">
+            <h2>Top Teams</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Players</th>
+                        <th>Wins</th>
+                        <th>Losses</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for team, team_stats in stats.teamStats %}
+                        <tr>
+                            <td>{{ team[0] }} - {{ team[1] }}</td>
+                            <td>{{ team_stats.wins }}</td>
+                            <td>{{ team_stats.losses }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+
+        <!-- Add the table for top teams here -->
+        <div class="table-card">
+            <h2>Top Teams Per Side</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Players</th>
+                        <th>Team</th>
+                        <th>Wins</th>
+                        <th>Losses</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for team, team_stats in stats.teamStatsWithTeamInfo %}
+                        <tr>
+                            <td>{{ team[0] }} - {{ team[1] }}</td>
+                            <td>{{ team[2] }}</td>
+                            <td>{{ team_stats.wins }}</td>
+                            <td>{{ team_stats.losses }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <a href="/join_game">
+        <button type="button">Start New Game</button>
+    </a>
+{% endblock %}
+</html>

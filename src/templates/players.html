@@ -1,0 +1,137 @@
+<!-- players.html -->
+
+{% extends 'base.html' %}
+
+{% block title %}Players List{% endblock %}
+
+{% block styles %}
+<style>
+    .container {
+        width: 20%;
+        margin: 5px auto;
+    }
+
+    h2 {
+        text-align: center;
+        color: #337ab7;
+    }
+
+    .card {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        padding: 5px;
+        margin-bottom: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .players-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .players-list-item {
+        font-size: 22px;
+        padding: 5px;
+        border: 1px solid #ddd;
+        margin-bottom: 2px;
+        border-radius: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #f9f9f9;
+    }
+
+    .form-card {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        padding: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    input {
+        width: calc(100% - 22px);
+        padding: 10px;
+        box-sizing: border-box;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
+
+    button {
+        display: block;
+        width: 100%;
+        padding: 10px;
+        font-size: 14px;
+        cursor: pointer;
+        border: none;
+        border-radius: 5px;
+        background-color: #337ab7;
+        color: #fff;
+        transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+        background-color: #23527c;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Players List</h2>
+
+    <div class="card form-card">
+        <form id="add-user-form" onsubmit="addUser()">
+            <div class="form-group">
+                <label for="new-username">New Username:</label>
+                <input type="text" id="new-username" name="new-username" required autofocus>
+            </div>
+        
+            <button type="submit">Add User</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <ul class="players-list">
+            {% for player in players %}
+                <li class="players-list-item">
+                    {{ player['username'] }}
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+<script>
+    function addUser() {
+        const newUsernameInput = document.getElementById('new-username');
+        const newUsername = newUsernameInput.value;
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', '/add_user', true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                const response = JSON.parse(xhr.responseText);
+                if (response.success) {
+                    newUsernameInput.value = '';
+                    location.reload();
+                } else {
+                    alert(`Failed to join the game. ${response.message}`);
+                }
+            }
+        };
+
+        const data = JSON.stringify({ newUser: newUsername });
+        xhr.send(data);
+    }
+</script>
+
+{% endblock %}
+</html>
