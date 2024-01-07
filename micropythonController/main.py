@@ -5,6 +5,7 @@ import ujson as json
 import neopixel
 import sys
 import gc
+import network
 
 # make sure the team variable is set in boot.py
 # team = 'RED'  or  team = 'BLACK'
@@ -14,6 +15,9 @@ analogIn = ADC(0)
 # here we store the last vaerage value from the photo cell
 averageValue = 0
 
+# the delta when we consider it a goal
+deltaMeassureValue = 50
+
 ssid = 'foosball'
 wifipassword = 'TGW66200'
 
@@ -22,32 +26,46 @@ baseUrl = ''
 numLeds = 3
 np = neopixel.NeoPixel(machine.Pin(4), numLeds)
 
+network.hostname(team)
+network.country('US')
+network.phy_mode(network.MODE_11B)
+
+backendIpAddress = '10.0.0.45'
+
+wlan = network.WLAN(network.STA_IF)
+wlan.active(True)
+
 def connectToWifi():
-    import network
-    sta_if = network.WLAN(network.STA_IF)
-    if not sta_if.isconnected():
+    global wlan
+    
+    if not wlan.isconnected():
         print('connecting to network...')
-        sta_if.active(True)
-        sta_if.connect(ssid, wifipassword)
-        while not sta_if.isconnected():
+        wlan.connect(ssid, wifipassword)
+        while not wlan.isconnected():
             pass
-    print('network config:', sta_if.ifconfig())
+    
+    # connecting using a static IP seems to be faster than DHCP
+    wlan.ifconfig((thisIpAddress, '255.255.255.0', backendIpAddress, backendIpAddress))
     
     # index 2 contains the ip address of the 'gateway', so this will be our raspi
     global baseUrl
-    baseUrl = 'http://{}:5001'.format(sta_if.ifconfig()[2])
+    baseUrl = 'http://{}:5001'.format(backendIpAddress)
     print(baseUrl)
     
     data = {
         'team': team,
-        'controllerIp': sta_if.ifconfig()[0]
+        'controllerIp': thisIpAddress
     }
     # as long as we can not connect to the backend we stay in here
     while not sendPostRequest(baseUrl + '/register_goal_counter', data):
-        sleep_ms(1000)
+        pass
+
 
 def sendPostRequest(url, data):    
-    for i in range(2):
+    if not wlan.isconnected():
+        connectToWifi()
+    
+    for i in range(5):
         try:
             response = requests.post(url, data=json.dumps(data))
             print("Response status code:", response.status_code)
@@ -56,7 +74,6 @@ def sendPostRequest(url, data):
         except Exception as e:
             gc.collect()
             print("POST Error:", e)
-            sleep_ms(1000)
     return False
 
 def lights(r, g, b):
@@ -89,7 +106,7 @@ def initGoalCountMode():
     print(f'average: {averageValue}')
 
 def isGoal(currentValue, averageValue):
-    return averageValue - currentValue > 50
+    return averageValue - currentValue > deltaMeassureValue
 
 def cycleGoalLights():
     for i in range(20 * numLeds):
@@ -111,7 +128,6 @@ def goal(currentValue):
     cycleGoalLights()
 
 
-
 try:
     team
 except NameError:    
@@ -124,11 +140,11 @@ connectToWifi()
 initGoalCountMode()
 
 while True:
-    currentValue = analogIn.read()
     sleep_ms(1)
+    currentValue = analogIn.read()
     if isGoal(currentValue, averageValue):
         # strange enough: without that gc.collect we get random connection aborted 103 errors
-        # when trying to send a post request; this seems to fix it somehow
+        # when trying to send a post request; this seems to make it a bit better ?!?
         gc.collect()
         goal(currentValue)
         initGoalCountMode()
