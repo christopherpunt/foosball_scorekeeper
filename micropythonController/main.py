@@ -35,6 +35,10 @@ backendIpAddress = '10.42.0.1'
 wlan = network.WLAN(network.STA_IF)
 wlan.active(True)
 
+# let's see if turning off the AP helps a bit
+ap = network.WLAN(network.AP_IF)
+ap.active(False) 
+
 def connectToWifi():
     global wlan
     
