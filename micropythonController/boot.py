@@ -11,3 +11,6 @@ gc.collect()
 # states which team gets a goal; so RED controller needs to be mounted in the black goal
 # possible values RED and BLACK
 team = 'RED'
+
+# giving every controller a static IP seems to work better when connecting
+thisIpAddress = '10.42.0.1'
