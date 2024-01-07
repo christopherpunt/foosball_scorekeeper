@@ -13,4 +13,4 @@ gc.collect()
 team = 'RED'
 
 # giving every controller a static IP seems to work better when connecting
-thisIpAddress = '10.42.0.1'
+thisIpAddress = '10.42.0.111'
