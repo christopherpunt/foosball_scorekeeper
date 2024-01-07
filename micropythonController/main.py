@@ -30,7 +30,7 @@ network.hostname(team)
 network.country('US')
 network.phy_mode(network.MODE_11B)
 
-backendIpAddress = '10.0.0.45'
+backendIpAddress = '10.42.0.1'
 
 wlan = network.WLAN(network.STA_IF)
 wlan.active(True)
