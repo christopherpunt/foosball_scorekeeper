@@ -42,7 +42,7 @@ class LeaderboardStats:
                 player_stats[player] = {'wins': wins, 'losses': losses}
 
         # Sort players based on wins and losses
-        return sorted(player_stats.items(), key=lambda x: (x[1]['wins'] / max(1, x[1]['losses']), x[1]['wins'], -x[1]['losses']), reverse=True)
+        return sorted(player_stats.items(), key=lambda x: (x[1]['wins'] / (x[1]['wins'] + x[1]['losses']), x[1]['wins'], -x[1]['losses']), reverse=True)
 
     def getTeamStats(self, includeTeam):
         # Initialize a defaultdict to store team statistics
@@ -71,6 +71,6 @@ class LeaderboardStats:
                     team_stats[(black_team[0], black_team[1])]['wins' if winning_team == 'BLACK' else 'losses'] += 1
 
         # Sort teams based on wins and losses
-        sorted_teams = sorted(team_stats.items(), key=lambda x: (x[1]['wins'], -x[1]['losses']), reverse=True)
+        sorted_teams = sorted(team_stats.items(), key=lambda x: (x[1]['wins'] / (x[1]['wins'] + x[1]['losses'])), reverse=True)
 
         return sorted_teams

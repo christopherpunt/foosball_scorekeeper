@@ -63,7 +63,7 @@
                         <th>Player</th>
                         <th>Wins</th>
                         <th>Losses</th>
-                        <th>W/L</th>
+                        <th>Win Rate</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -73,11 +73,7 @@
                             <td>{{ stats.wins }}</td>
                             <td>{{ stats.losses }}</td>
                             <td>
-                                {% if stats.losses == 0 %}
-                                    {{ stats.wins }}
-                                {% else %}
-                                    {{ stats.wins / stats.losses | round(2) }}
-                                {% endif %}
+                                {{ (stats.wins / (stats.wins + stats.losses) * 100) | round | int}}%
                             </td>
                         </tr>
                     {% endfor %}
@@ -94,7 +90,7 @@
                         <th>Players</th>
                         <th>Wins</th>
                         <th>Losses</th>
-                        <th>W/L</th>
+                        <th>Win Rate</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -104,11 +100,7 @@
                             <td>{{ team_stats.wins }}</td>
                             <td>{{ team_stats.losses }}</td>
                             <td>
-                                {% if team_stats.losses == 0 %}
-                                    {{ team_stats.wins }}
-                                {% else %}
-                                    {{ team_stats.wins / team_stats.losses | round(2) }}
-                                {% endif %}
+                                {{ (team_stats.wins / (team_stats.wins + team_stats.losses) * 100) | round | int}}%
                             </td>
                         </tr>
                     {% endfor %}
@@ -127,7 +119,7 @@
                         <th>Team</th>
                         <th>Wins</th>
                         <th>Losses</th>
-                        <th>W/L</th>
+                        <th>Win Rate</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -138,11 +130,7 @@
                             <td>{{ team_stats.wins }}</td>
                             <td>{{ team_stats.losses }}</td>
                             <td>
-                                {% if team_stats.losses == 0 %}
-                                    {{ team_stats.wins }}
-                                {% else %}
-                                    {{ team_stats.wins / team_stats.losses | round(2) }}
-                                {% endif %}
+                                {{ (team_stats.wins / (team_stats.wins + team_stats.losses) * 100) | round | int}}%
                             </td>
                         </tr>
                     {% endfor %}
