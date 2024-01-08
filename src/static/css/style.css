@@ -10,16 +10,17 @@ body {
     align-items: center;
     position: relative;
     background-color: #f4f4f4;
-
 }
 
 .navbar {
     background-color: #333;
     overflow: hidden;
+    display: flex;
+    justify-content: space-between;
+    align-items: center; /* Center items vertically */
 }
 
 .navbar img {
-    float: left;
     height: 30px;
     padding: 10px;
 }
@@ -49,19 +50,18 @@ body {
 }
 
 button {
-    background-color: #4caf50;
+    background-color: #4fb5c7;
     color: white;
-    padding: 10px 15px;
+    padding: 5px 10px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 16px;
-}
+    font-size: 18px;
+} 
 
 button:hover {
     background-color: #45a049;
 }
-
 .red {
     color: red
 }
