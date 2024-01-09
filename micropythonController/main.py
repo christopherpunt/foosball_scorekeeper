@@ -24,16 +24,12 @@ wifipassword = 'TGW66200'
 baseUrl = ''
 
 numLeds = 3
-np = neopixel.NeoPixel(machine.Pin(4), numLeds)
+np = neopixel.NeoPixel(Pin(4), numLeds)
 
 network.hostname(team)
 network.country('US')
-network.phy_mode(network.MODE_11B)
 
 backendIpAddress = '10.42.0.1'
-
-wlan = network.WLAN(network.STA_IF)
-wlan.active(True)
 
 # let's see if turning off the AP helps a bit
 ap = network.WLAN(network.AP_IF)
@@ -42,14 +38,19 @@ ap.active(False)
 def connectToWifi():
     global wlan
     
+    wlan = network.WLAN(network.STA_IF)
+    wlan.active(True)
+    
     if not wlan.isconnected():
         print('connecting to network...')
+        # connecting using a static IP seems to be faster than DHCP
+        wlan.ifconfig((thisIpAddress, '255.255.255.0', backendIpAddress, backendIpAddress))
+    
         wlan.connect(ssid, wifipassword)
         while not wlan.isconnected():
             pass
-    
-    # connecting using a static IP seems to be faster than DHCP
-    wlan.ifconfig((thisIpAddress, '255.255.255.0', backendIpAddress, backendIpAddress))
+        
+        print(wlan.ifconfig())
     
     # index 2 contains the ip address of the 'gateway', so this will be our raspi
     global baseUrl
@@ -66,6 +67,7 @@ def connectToWifi():
 
 
 def sendPostRequest(url, data):    
+    
     if not wlan.isconnected():
         connectToWifi()
     
@@ -152,3 +154,6 @@ while True:
         gc.collect()
         goal(currentValue)
         initGoalCountMode()
+
+
+
