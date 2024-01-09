@@ -48,6 +48,5 @@ class PlayerManager:
         if foundPlayer is None:
             player = Player(username=newUser)
             self._db.insert(vars(player))
-            self.updatePlayerData()
             return jsonify({'success': True})
         return jsonify({'success': False, 'message': f'User: {newUser} already exists'})

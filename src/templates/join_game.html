@@ -9,14 +9,14 @@
 {% block styles %}
 <style>
     .team-container {
-        width: 20%;
+        width: 100%;
         margin: 10px auto;
         display: flex;
         justify-content: center;
     }
 
     .team {
-        min-width: 200px;
+        min-width: 400px;
         background-color: #fff;
         border: 1px solid #ddd;
         border-radius: 10px;
@@ -44,10 +44,11 @@
         list-style: none;
         padding: 0;
         margin: 0;
+        columns: 2; /* Change the number of columns as needed */
     }
 
     .player-item {
-        font-size: 22px;
+        font-size: 50px;
         cursor: pointer;
 
         padding: 5px;
@@ -58,6 +59,7 @@
         justify-content: space-between;
         align-items: center;
         background-color: #f9f9f9;
+        break-inside: avoid-column; /* Prevent player items from breaking across columns */
     }
 
     .player-item:hover {
@@ -85,25 +87,25 @@
 <div class="team-container">
     <div class="team">
         <h2 class="red">Red Team</h2>
-        <ul class="player-list" data-team="RED">
-            {% for player in players %}
-            <div class="player-item" data-player="{{ player['username'] }}" data-team="RED">
-                {{ player['username'] }}
-            </div>
-            {% endfor %}
-        </ul>
-    </div>
-
-    <div class="team">
+                    <ul class="player-list" data-team="RED">
+                {% for player in players %}
+                <div class="player-item" data-player="{{ player['username'] }}" data-team="RED">
+                    {{ player['username'] }}
+                </div>
+                {% endfor %}
+            </ul>
+        </div>
+        
+        <div class="team">
         <h2 class="black">Black Team</h2>
-        <ul class="player-list" data-team="BLACK">
-            {% for player in players %}
-            <div class="player-item" data-player="{{ player['username'] }}" data-team="BLACK">
-                {{ player['username'] }}
-            </div>
-            {% endfor %}
-        </ul>
-    </div>
+            <ul class="player-list" data-team="BLACK">
+                {% for player in players %}
+                <div class="player-item" data-player="{{ player['username'] }}" data-team="BLACK">
+                    {{ player['username'] }}
+                </div>
+                {% endfor %}
+            </ul>
+        </div>
 </div>
 
 <button type="button" onclick="startGame()">Start Game</button>
