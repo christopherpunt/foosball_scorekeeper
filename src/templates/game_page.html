@@ -70,14 +70,6 @@
         color: #fff;
         width: 40%;
     }
-
-    .red {
-        color: red;
-    }
-    
-    .black {
-        color: black;
-    }
     
     .popup {
         display: none;
@@ -90,37 +82,49 @@
         justify-content: center;
         align-items: center;
     }
-
     .popup-content {
         background-color: #fff;
         border-radius: 10px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
         padding: 20px;
         text-align: center;
+        display: flex;
+        flex-direction: column;
     }
 
-    .popup-content button {
-        margin: 10px auto;
-        padding: 15px;
-        font-size: 16px;
-        cursor: pointer;
-        border: none;
-        border-radius: 5px;
-        width: 80%;
+    .popup-content-inner {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .popup-image {
         display: block;
+        max-width: 100%;
+        margin-right: 20px; /* Adjust the margin as needed */
     }
 
-    .popup-content button:nth-child(3) {
+    .winningButtons {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .winningButtons button {
+        margin-top: 30px; /* Adjust the margin as needed */
+    }
+
+    .popup-content button:nth-child(1) {
         background-color: #d9534f;
         color: #fff;
     }
 
-    .popup-content button:nth-child(4) {
+    .popup-content button:nth-child(2) {
         background-color: #f0ad4e;
         color: #fff;
     }
 
-    .popup-content button:nth-child(5) {
+    .popup-content button:nth-child(3) {
         background-color: #5cb85c;
         color: #fff;
     }
@@ -173,12 +177,17 @@
 <div id="winningPopup" class="popup">
     <div class="popup-content">
         <h3 id="winningTeamText"></h3>
-        <img src="/static/img/bean-dance.gif" alt="Dancing Bean" id="winningImage" style="display: none;">
-        <button onclick="closePopup()">Fix Score</button>
-        <button onclick="switchSides()">Switch Sides</button>
-        <button onclick="confirmGameCompleted()">Game Completed</button>
+        <div class="popup-content-inner">
+            <img src="/static/img/bean-dance.gif" alt="Dancing Bean" id="winningImage" class="popup-image">
+            <div class="winningButtons">
+                <button onclick="closePopup()">Fix Score</button>
+                <button onclick="switchSides()">Switch Sides</button>
+                <button onclick="confirmGameCompleted()">Game Completed</button>
+            </div>
+        </div>
     </div>
 </div>
+
 
 
 <script src="/static/socket.io.min.js"></script>
