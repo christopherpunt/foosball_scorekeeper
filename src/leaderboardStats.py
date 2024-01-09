@@ -5,10 +5,6 @@ class LeaderboardStats:
     def __init__(self) -> None:
         self._db = TinyDB("instance/FoosballGames.json")
 
-        self.playerStats = self.getPlayerStats()
-        self.teamStats = self.getTeamStats(False)
-        self.teamStatsWithTeamInfo = self.getTeamStats(True)
-
     def getStats(self):
         self.updateStats()
         return {key: value for key, value in vars(self).items() if not key.startswith('_')}
@@ -17,6 +13,7 @@ class LeaderboardStats:
         self.playerStats = self.getPlayerStats()
         self.teamStats = self.getTeamStats(False)
         self.teamStatsWithTeamInfo = self.getTeamStats(True)
+        self.teamBeans = self.getTeamBeans()
 
     def getPlayerStats(self):
         # Fetch data from the TinyDB
@@ -42,7 +39,8 @@ class LeaderboardStats:
                 player_stats[player] = {'wins': wins, 'losses': losses}
 
         # Sort players based on wins and losses
-        return sorted(player_stats.items(), key=lambda x: (x[1]['wins'] / (x[1]['wins'] + x[1]['losses']), x[1]['wins'], -x[1]['losses']), reverse=True)
+        sortedTeams = sorted(player_stats.items(), key=lambda x: (x[1]['wins'] / (x[1]['wins'] + x[1]['losses']), x[1]['wins'], -x[1]['losses']), reverse=True)
+        return sortedTeams[:10]
 
     def getTeamStats(self, includeTeam):
         # Initialize a defaultdict to store team statistics
@@ -72,5 +70,36 @@ class LeaderboardStats:
 
         # Sort teams based on wins and losses
         sorted_teams = sorted(team_stats.items(), key=lambda x: (x[1]['wins'] / (x[1]['wins'] + x[1]['losses']), x[1]['wins'], -x[1]['losses']),  reverse=True)
+
+        #only return the top ten
+        return sorted_teams[:10]
+    
+    def getTeamBeans(self):
+        # Initialize a defaultdict to store team statistics
+        team_stats = defaultdict(lambda: {'beans': 0})
+
+        # Iterate through each game
+        for game_info in self._db.table('_default').all():
+            red_team = [player for player in [game_info.get('redPlayer1', ""), game_info.get('redPlayer2', "")] if player is not None]
+            black_team = [player for player in [game_info.get('blackPlayer1', ""), game_info.get('blackPlayer2', "")] if player is not None]
+
+            # Check if the game is finished
+            if game_info.get('isFinished', False) and len(red_team) == 2 and len(black_team) == 2 and (game_info.get('redTeamScore', 0) == 0 or game_info.get('blackTeamScore', 0) == 0):
+                # Determine the winning team
+                winning_team = game_info['winningTeam']
+
+                # Create canonical team representation by sorting player names
+                red_team.sort()
+                black_team.sort()
+
+                # Update team statistics for all player combinations and team assignments
+                if winning_team == "RED":
+                    team_stats[(black_team[0], black_team[1])]['beans'] += 1
+
+                if winning_team == "BLACK":
+                    team_stats[(red_team[0], red_team[1])]['beans'] += 1
+
+        # Sort teams based on wins and losses
+        sorted_teams = sorted(team_stats.items(), key=lambda x: (x[1]['beans']),  reverse=True)
 
         return sorted_teams

@@ -126,6 +126,27 @@
                 </tbody>
             </table>
         </div>
+
+        <!-- Add the table for top teams here -->
+        <div class="table-card">
+            <h2>Beans</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Players</th>
+                        <th>Beans</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for team, team_stats in stats.teamBeans %}
+                        <tr>
+                            <td>{{ team[0] }} - {{ team[1] }}</td>
+                            <td>{{ team_stats.beans }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </main>
 {% endblock %}
 </html>
