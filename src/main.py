@@ -3,6 +3,7 @@ from flask_socketio import SocketIO
 from foosballGame import FoosballGameManager
 from player import PlayerManager
 from leaderboardStats import LeaderboardStats
+from ledStripService import LedStripService
 import json
 
 app = Flask(__name__)
@@ -13,9 +14,12 @@ static_files = {
     '/static' : './static'
 }
 
+ledStripControllerPort = 5002
+ledStripControllerUrl = "http://localhost:" + str(ledStripControllerPort)
 gameManager = FoosballGameManager(socketio)
 playerManager = PlayerManager(socketio)
 leaderboardStats = LeaderboardStats()
+ledStripService = LedStripService(ledStripControllerUrl)
 
 def requestToJson(request):
     raw_data = request.data
@@ -39,6 +43,7 @@ def joinGame():
 @app.route('/start_game', methods=['POST'])
 def start_game():
     json = requestToJson(request)
+    ledStripService.gameStarted()
     return gameManager.startGame(json.get('RED'), json.get('BLACK'))
 
 @app.route('/add_user', methods=['POST'])
@@ -56,6 +61,7 @@ def addScore():
     team_value = requestToJson(request).get('team')
     print(f'Team {team_value} scored a goal!')
     returnValue = gameManager.currentGame.addScore(team_value)
+    ledStripService.goalScored(team_value)
     gameManager.updateCurrentGameData()
     return returnValue
 
