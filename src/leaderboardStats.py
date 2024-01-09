@@ -71,6 +71,6 @@ class LeaderboardStats:
                     team_stats[(black_team[0], black_team[1])]['wins' if winning_team == 'BLACK' else 'losses'] += 1
 
         # Sort teams based on wins and losses
-        sorted_teams = sorted(team_stats.items(), key=lambda x: (x[1]['wins'] / (x[1]['wins'] + x[1]['losses'])), reverse=True)
+        sorted_teams = sorted(team_stats.items(), key=lambda x: (x[1]['wins'] / (x[1]['wins'] + x[1]['losses']), x[1]['wins'], -x[1]['losses']),  reverse=True)
 
         return sorted_teams
