@@ -13,6 +13,7 @@
         margin: 10px auto;
         display: flex;
         justify-content: center;
+        margin-top: 0;
     }
 
     .team {
@@ -83,7 +84,8 @@
 {% endblock %}
 
 {% block content %}
-<h2>Choose Players</h2>
+<button type="button" onclick="startGame()">Start Game</button>
+
 <div class="team-container">
     <div class="team">
         <h2 class="red">Red Team</h2>
@@ -108,7 +110,6 @@
         </div>
 </div>
 
-<button type="button" onclick="startGame()">Start Game</button>
 <script>
     const selectedPlayers = {
         RED: [],
