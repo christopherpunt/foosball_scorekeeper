@@ -7,7 +7,8 @@
 {% block styles %}
 <style>
     .container {
-        width: 20%;
+        min-width: 500px;
+        width: 90%;
         margin: 5px auto;
     }
 
@@ -29,10 +30,11 @@
         list-style: none;
         padding: 0;
         margin: 0;
+        columns: 3; /* Change the number of columns as needed */
     }
 
     .players-list-item {
-        font-size: 22px;
+        font-size: 50px;
         padding: 5px;
         border: 1px solid #ddd;
         margin-bottom: 2px;
@@ -41,9 +43,13 @@
         justify-content: space-between;
         align-items: center;
         background-color: #f9f9f9;
+        break-inside: avoid-column; /* Prevent player items from breaking across columns */
+
     }
 
     .form-card {
+        margin: 5px auto;
+        width: 20%;
         background-color: #fff;
         border: 1px solid #ddd;
         border-radius: 10px;
@@ -61,6 +67,7 @@
         box-sizing: border-box;
         border: 1px solid #ddd;
         border-radius: 5px;
+        font-size: 50px;
     }
 
     button:hover {
@@ -70,20 +77,19 @@
 {% endblock %}
 
 {% block content %}
+<h2>Players List</h2>
+
+<div class="card form-card">
+    <form id="add-user-form" onsubmit="addUser()">
+        <div class="form-group">
+            <label for="new-username">New Username:</label>
+            <input type="text" id="new-username" name="new-username" required autofocus>
+        </div>
+    
+        <button type="submit">Add User</button>
+    </form>
+</div>
 <div class="container">
-    <h2>Players List</h2>
-
-    <div class="card form-card">
-        <form id="add-user-form" onsubmit="addUser()">
-            <div class="form-group">
-                <label for="new-username">New Username:</label>
-                <input type="text" id="new-username" name="new-username" required autofocus>
-            </div>
-        
-            <button type="submit">Add User</button>
-        </form>
-    </div>
-
     <div class="card">
         <ul class="players-list">
             {% for player in players %}
