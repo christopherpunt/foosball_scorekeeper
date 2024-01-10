@@ -17,6 +17,7 @@ class LeaderboardStats:
         self.teamBeans = self.getTeamBeans()
         self.redVsBlack = self.getRedVsBlack()
         self.shortestGame = self.getShortestGames()
+        self.recentGameHistory = self.getRecentGameHistory()
 
     def getPlayerStats(self):
         # Fetch data from the TinyDB
@@ -151,3 +152,45 @@ class LeaderboardStats:
                     team_stats[(winningTeamString, losingTeamString)]['score'] = scoreString
 
         return sorted(team_stats.items(), key=lambda x: (x[1]['length']))[:10]
+    
+    def getRecentGameHistory(self):
+
+
+        team_stats = defaultdict(lambda: {'length': None, 'score': '0-0'})
+
+        for game_info in self._db.table('_default').all():
+            red_team = [player for player in [game_info.get('redPlayer1', None), game_info.get('redPlayer2', None)] if player is not None]
+            black_team = [player for player in [game_info.get('blackPlayer1', None), game_info.get('blackPlayer2', None)] if player is not None]
+
+            # Check if the game is finished
+            if game_info.get('isFinished', False):
+                # Determine the winning team
+                winning_team = game_info['winningTeam']
+
+                # Create canonical team representation by sorting player names
+                red_team.sort()
+                black_team.sort()
+
+                # Update team statistics for all player combinations and team assignments
+                if winning_team == "RED":
+                    winningTeamString = f"{red_team[0] + ' - ' + red_team[1] if len(red_team) == 2 else red_team[0]}"
+                    losingTeamString = f"{black_team[0] + ' - ' + black_team[1] if len(black_team) == 2 else black_team[0]}"
+                    duration = datetime.strptime(game_info['finishTime'], Configuration.dateFormat) - datetime.strptime(game_info['startTime'], Configuration.dateFormat)
+                    scoreString = f"{game_info.get('redTeamScore', 0)} -- {game_info.get('blackTeamScore', 0)}"
+
+                    team_stats[(winningTeamString, losingTeamString)]['length'] = duration
+                    team_stats[(winningTeamString, losingTeamString)]['score'] = scoreString
+                    team_stats[(winningTeamString, losingTeamString)]['finishDate'] = game_info['finishTime']
+
+
+                if winning_team == "BLACK":
+                    losingTeamString = f"{red_team[0] + ' - ' + red_team[1] if len(red_team) == 2 else red_team[0]}"
+                    winningTeamString = f"{black_team[0] + ' - ' + black_team[1] if len(black_team) == 2 else black_team[0]}"
+                    duration = datetime.strptime(game_info['finishTime'], Configuration.dateFormat) - datetime.strptime(game_info['startTime'], Configuration.dateFormat)
+                    scoreString = f"{game_info.get('blackTeamScore', 0)} -- {game_info.get('redTeamScore', 0)}"
+
+                    team_stats[(winningTeamString, losingTeamString)]['length'] = duration
+                    team_stats[(winningTeamString, losingTeamString)]['score'] = scoreString
+                    team_stats[(winningTeamString, losingTeamString)]['finishDate'] = game_info['finishTime']
+
+        return sorted(team_stats.items(), key=lambda x: (x[1]['finishDate']), reverse=True)[:10]
