@@ -1,6 +1,7 @@
 from flask import jsonify
 from foosballGame import TeamEnum
 from tinydb import TinyDB, Query
+from configuration import Configuration
 import re
 
 
@@ -14,9 +15,7 @@ class Player:
 class PlayerManager:
     def __init__(self, socketio) -> None:
         self.socketio = socketio
-        self.redSelectedPlayers = []
-        self.blackSelectedPlayers = []
-        self._db = TinyDB('instance/players.json', indent=2)
+        self._db = TinyDB(Configuration.playersDatabase, indent=2)
 
     def getAllPlayers(self):
         players = []

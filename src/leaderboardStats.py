@@ -1,10 +1,11 @@
 from tinydb import TinyDB, Query
 from collections import defaultdict
 from datetime import datetime
+from configuration import Configuration
 
 class LeaderboardStats:
     def __init__(self) -> None:
-        self._db = TinyDB("instance/FoosballGames.json")
+        self._db = TinyDB(Configuration.foosballGamesDatabase)
 
     def getStats(self):
         self.updateStats()
@@ -134,7 +135,7 @@ class LeaderboardStats:
                 if winning_team == "RED":
                     winningTeamString = f"{red_team[0] + ' - ' + red_team[1] if len(red_team) == 2 else red_team[0]}"
                     losingTeamString = f"{black_team[0] + ' - ' + black_team[1] if len(black_team) == 2 else black_team[0]}"
-                    duration = datetime.strptime(game_info['finishTime'], '%m/%d/%Y, %I:%M:%S%p') - datetime.strptime(game_info['startTime'], '%m/%d/%Y, %I:%M:%S%p')
+                    duration = datetime.strptime(game_info['finishTime'], Configuration.dateFormat) - datetime.strptime(game_info['startTime'], Configuration.dateFormat)
                     scoreString = f"{game_info.get('redTeamScore', 0)} -- {game_info.get('blackTeamScore', 0)}"
 
                     team_stats[(winningTeamString, losingTeamString)]['length'] = duration
@@ -143,7 +144,7 @@ class LeaderboardStats:
                 if winning_team == "BLACK":
                     losingTeamString = f"{red_team[0] + ' - ' + red_team[1] if len(red_team) == 2 else red_team[0]}"
                     winningTeamString = f"{black_team[0] + ' - ' + black_team[1] if len(black_team) == 2 else black_team[0]}"
-                    duration = datetime.strptime(game_info['finishTime'], '%m/%d/%Y, %I:%M:%S%p') - datetime.strptime(game_info['startTime'], '%m/%d/%Y, %I:%M:%S%p')
+                    duration = datetime.strptime(game_info['finishTime'], Configuration.dateFormat) - datetime.strptime(game_info['startTime'], Configuration.dateFormat)
                     scoreString = f"{game_info.get('blackTeamScore', 0)} -- {game_info.get('redTeamScore', 0)}"
 
                     team_stats[(winningTeamString, losingTeamString)]['length'] = duration

@@ -3,6 +3,7 @@ import board
 import time
 import json
 from flask import Flask, request, jsonify
+from configuration import Configuration
 
 
 app = Flask(__name__)
@@ -63,24 +64,35 @@ def handleGoalScored():
 
 @app.route('/game_started', methods=['POST'])
 def handleGameStarted():
-    data = request.get_json()
-    #maybe add an animation for choosing who starts
+    ledStrip.allOn(AllLedsSameColor((255,0,0)))
+    time.sleep(5)
+    ledStrip.allOff()
 
-
-    print('game started')
     return jsonify({'success': True})
 
 
 @app.route('/game_completed', methods=['POST'])
 def handleGameCompleted():
-    print('game completed')
-    return jsonify({'success': True})
+    data = request.get_json()
+    success = False
+
+    if data and 'winningTeam' in data:
+        if data['winningTeam'] == 'RED':
+            for i in range(10):
+                ledStrip.race(allLeds, None, False, 50, AllLedsSameColor((0,255,0)))
+            success = True
+        elif data['winningTeam'] == 'BLACK':
+            for i in range(10):
+                ledStrip.race(allLeds, None, False, 50, AllLedsSameColor((0,0,255)))
+            success = True
+
+    return jsonify({'success': success})
 
 
 @app.route('/light_switch', methods=['POST'])
 def handleLightsOn():
     data = request.get_json()
-    if data:
+    if data and 'state' in data:
         state = data['state']
         color = tuple(data.get('color', (255, 255, 255)))
     if state:
@@ -91,4 +103,4 @@ def handleLightsOn():
     return jsonify({'success': True})
 
 if __name__ == '__main__':
-    app.run(port=5002, debug=True)
+    app.run(port=Configuration.ledStripControllerPort, debug=True)

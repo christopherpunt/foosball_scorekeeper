@@ -1,3 +1,4 @@
+from configuration import Configuration
 from flask import Flask, render_template, request, jsonify
 from flask_socketio import SocketIO
 from foosballGame import FoosballGameManager
@@ -5,7 +6,6 @@ from player import PlayerManager
 from leaderboardStats import LeaderboardStats
 from ledStripService import LedStripService
 import json
-
 app = Flask(__name__)
 socketio = SocketIO(app)
 
@@ -14,8 +14,7 @@ static_files = {
     '/static' : './static'
 }
 
-ledStripControllerPort = 5002
-ledStripControllerUrl = "http://localhost:" + str(ledStripControllerPort)
+ledStripControllerUrl = Configuration.ledStripControllerUrl
 gameManager = FoosballGameManager(socketio)
 playerManager = PlayerManager(socketio)
 leaderboardStats = LeaderboardStats()
@@ -62,11 +61,16 @@ def addUser():
 @app.route('/add_score', methods=['POST'])
 def addScore():
     team_value = requestToJson(request).get('team')
-    print(f'Team {team_value} scored a goal!')
-    returnValue = gameManager.currentGame.addScore(team_value)
-    ledStripService.goalScored(team_value)
-    gameManager.updateCurrentGameData()
-    return returnValue
+    if gameManager.currentGame:
+        returnValue = gameManager.currentGame.addScore(team_value)
+        gameManager.updateCurrentGameData()
+        if gameManager.currentGame.isFinished:
+            ledStripService.gameCompleted(gameManager.currentGame.winningTeam)
+        else:
+            ledStripService.goalScored(team_value)
+
+        return returnValue
+    return jsonify({'success': False, 'message': f'Game not started could not add score.'})
 
 # the goal counters / controllers need to register first before we can start a game
 @app.route('/register_goal_counter', methods=['POST'])
@@ -118,4 +122,4 @@ def handleGameCompleted():
     gameManager.gameCompleted()
 
 if __name__ == '__main__':
-    socketio.run(app, host='0.0.0.0', port=5001, debug=True, allow_unsafe_werkzeug=True)
+    socketio.run(app, host='0.0.0.0', port=Configuration.backendPort, debug=True, allow_unsafe_werkzeug=True)

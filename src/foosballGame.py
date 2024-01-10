@@ -20,9 +20,9 @@ class FoosballGame:
         self.redTeamScore = 0
         self.winningTeam = None
         self.isFinished = False
-        self.startTime = datetime.now().strftime('%m/%d/%Y, %I:%M:%S%p')
+        self.startTime = datetime.now().strftime(Configuration.dateFormat)
 
-        self._db = TinyDB('instance/FoosballGames.json', indent=2)
+        self._db = TinyDB(Configuration.foosballGamesDatabase, indent=2)
 
     def addScore(self, team):
         if self.isFinished:
@@ -66,7 +66,7 @@ class FoosballGame:
 
     def getGameData(self):
         gameData = vars(self)
-        gameData['finishTime'] = datetime.now().strftime('%m/%d/%Y, %I:%M:%S%p') if self.isFinished else None
+        gameData['finishTime'] = datetime.now().strftime(Configuration.dateFormat) if self.isFinished else None
         return {key: value for key, value in gameData.items() if not key.startswith('_')}
 
 class FoosballGameManager:

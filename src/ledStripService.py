@@ -5,7 +5,7 @@ class LedStripService:
     def __init__(self, url) -> None:
         self.url = url
 
-    def sendPostRequest(self, function, data):
+    def sendPostRequest(self, function, data = None):
         headers = {
             'Content-type': 'application/json',
             'Accept': 'application/json'
@@ -38,7 +38,10 @@ class LedStripService:
         self.sendPostRequest('/light_switch', data)
 
     def gameStarted(self):
-        pass
+        self.sendPostRequest('/game_started')
     
-    def gameCompleted(self):
-        pass
+    def gameCompleted(self, winningTeam):
+        data = {
+            'winningTeam': winningTeam
+        }
+        self.sendPostRequest('/game_completed', data)
