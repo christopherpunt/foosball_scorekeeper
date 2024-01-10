@@ -12,17 +12,30 @@ class LedStripService:
         }
         try:
             response = requests.post(self.url + function, json=data, headers=headers)
+            print(f"Status Code: {response.status_code}")
+            print("Response Content:")
+            print(response.text)
         except Exception as e:
-            print(f'Could not post to: {self.url + function} error: {e}')
-        print(f"Status Code: {response.status_code}")
-        print("Response Content:")
-        print(response.text)
+            print(f'Could not post to: {self.url + function} with data:{data} error: {e}')
     
     def goalScored(self, team):
         data = {
             "team": team
         }
         self.sendPostRequest('/goal_scored', data)
+
+    def turnLightsOn(self):
+        data = {
+            'state': True,
+            'color': (255,255,255)
+        }
+        self.sendPostRequest('/light_switch', data)
+
+    def turnLightsOff(self):
+        data = {
+            'state': False
+        }
+        self.sendPostRequest('/light_switch', data)
 
     def gameStarted(self):
         pass

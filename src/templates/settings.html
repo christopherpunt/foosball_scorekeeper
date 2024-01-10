@@ -1,0 +1,44 @@
+<!-- Settings.html -->
+
+{% extends 'base.html' %}
+
+{% block title %}
+    Settings
+{% endblock %}
+
+{% block styles %}
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+
+        #lightsFormOn,
+        #lightsFormOff {
+            margin-top: 20px;
+        }
+
+        input[type="submit"] {
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #4caf50;
+            color: #fff;
+            border: none;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <!-- Lights Control Form -->
+    <form id="lightsFormOn" action="/lights_on" method="post">
+        <input type="submit" name="lightsOn" value="Turn lights on" />
+    </form>
+
+    <form id="lightsFormOff" action="/lights_off" method="post">
+        <input type="submit" name="lightsOff" value="Turn lights off" />
+    </form>
+{% endblock %}

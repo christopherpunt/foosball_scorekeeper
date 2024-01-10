@@ -64,13 +64,31 @@ def handleGoalScored():
 @app.route('/game_started', methods=['POST'])
 def handleGameStarted():
     data = request.get_json()
+    #maybe add an animation for choosing who starts
+
 
     print('game started')
-    #maybe add an animation for choosing who starts
+    return jsonify({'success': True})
+
 
 @app.route('/game_completed', methods=['POST'])
 def handleGameCompleted():
     print('game completed')
+    return jsonify({'success': True})
+
+
+@app.route('/light_switch', methods=['POST'])
+def handleLightsOn():
+    data = request.get_json()
+    if data:
+        state = data['state']
+        color = tuple(data.get('color', (255, 255, 255)))
+    if state:
+        ledStrip.allOn(AllLedsSameColor(color))
+    else:
+        ledStrip.allOff()
+
+    return jsonify({'success': True})
 
 if __name__ == '__main__':
     app.run(port=5002, debug=True)

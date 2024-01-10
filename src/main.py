@@ -29,7 +29,6 @@ def requestToJson(request):
 @app.route('/')
 def index():
     stats = leaderboardStats.getStats()
-    print(stats)
     return render_template('leaderboard.html', stats=stats)
 
 @app.route('/players')
@@ -40,6 +39,16 @@ def getAllPlayers():
 def joinGame():
     return render_template('join_game.html', players=playerManager.getAllPlayers())
 
+@app.route('/settings')
+def settings():
+    return render_template('settings.html')
+
+@app.route('/game_page')
+def game_page():
+    if gameManager.currentGame is not None:
+        return render_template('game_page.html')
+    return joinGame()
+
 @app.route('/start_game', methods=['POST'])
 def start_game():
     json = requestToJson(request)
@@ -49,12 +58,6 @@ def start_game():
 @app.route('/add_user', methods=['POST'])
 def addUser():
     return playerManager.addNewPlayer(request)
-
-@app.route('/game_page')
-def game_page():
-    if gameManager.currentGame is not None:
-        return render_template('game_page.html')
-    return joinGame()
 
 @app.route('/add_score', methods=['POST'])
 def addScore():
@@ -72,6 +75,16 @@ def registerGoalCounter():
     team = json.get('team')
     controllerIp = json.get('controllerIp')
     return jsonify({'success': True})
+
+@app.route('/lights_on', methods=['POST'])
+def turnLightsOn():
+    ledStripService.turnLightsOn()
+    return render_template('settings.html')
+
+@app.route('/lights_off', methods=['POST'])
+def turnLightsOff():
+    ledStripService.turnLightsOff()
+    return render_template('settings.html')
 
 @socketio.on('get_initial_data')
 def handle_get_initial_data():
