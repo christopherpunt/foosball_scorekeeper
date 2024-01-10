@@ -111,36 +111,6 @@
             </table>
         </div>
 
-
-        <!-- Add the table for top teams here -->
-        <div class="table-card">
-            <h3>Top Teams Per Side</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Players</th>
-                        <th>Team</th>
-                        <th>Wins</th>
-                        <th>Losses</th>
-                        <th>Win Rate</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for team, team_stats in stats.teamStatsWithTeamInfo %}
-                        <tr>
-                            <td class="player-cell">{{ team[0] }} - {{ team[1] }}</td>
-                            <td>{{ team[2] }}</td>
-                            <td>{{ team_stats.wins }}</td>
-                            <td>{{ team_stats.losses }}</td>
-                            <td>
-                                {{ (team_stats.wins / (team_stats.wins + team_stats.losses) * 100) | round | int}}%
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-
         <!-- Add the table for top teams here -->
         <div class="table-card">
             <h3>Beans</h3>
@@ -154,9 +124,56 @@
                 <tbody>
                     {% for team, team_stats in stats.teamBeans %}
                         <tr>
-                            <td class="player-cell">{{ team[0] }} - {{ team[1] }}</td>
+                            <td class="player-cell">{{ team }}</td>
                             <td>{{ team_stats.beans }}</td>
                         </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+
+        <!-- Add the table for top teams here -->
+        <div class="table-card">
+            <h3>Red Vs Black</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Team</th>
+                        <th>Wins</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for team, wins in stats.redVsBlack %}
+                        <tr>
+                            <td>{{ team }}</td>
+                            <td>{{ wins }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Add the table for top teams here -->
+        <div class="table-card">
+            <h3>Shortest Game</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Winning Team</th>
+                        <th>Losing Team</th>
+                        <th>Lenth</th>
+                        <th>Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for team, team_stats in stats.shortestGame %}
+                    <tr>
+                        <td class="player-cell">{{ team[0] }}</td>
+                        <td class="player-cell">{{ team[1] }}</td>
+                        <td>{{ team_stats.length }}</td>
+                        <td>{{ team_stats.score }}</td>
+                    </tr>
                     {% endfor %}
                 </tbody>
             </table>
