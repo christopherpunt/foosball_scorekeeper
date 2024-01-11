@@ -93,8 +93,8 @@ def turnLightsOff():
 @app.route('/ping', methods=['POST'])
 def handlePing():
     json = requestToJson(request)
-    if 'averageValue' in json:
-        print(f"averageValue: {json.get('averageValue')}")
+    if 'averageValue' in json and 'team' in json:
+        print(f"team: {json.get('team')} has averageValue: {json.get('averageValue')}")
 
     return jsonify({'success': True})
 

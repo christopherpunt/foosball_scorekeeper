@@ -38,7 +38,11 @@ network.hostname(f'NodeMCU Team {team}')
 network.country('US')
 
 def send_ping(t):
-    sendPostRequest(baseUrl + '/ping', { 'averageValue': averageValue })
+    data = {
+        'team': team,
+        'averageValue': averageValue
+    }
+    sendPostRequest(baseUrl + '/ping', data)
     # strange enough: without that gc.collect we get random connection aborted 103 errors
     # when trying to send a post request; this seems to make it a bit better ?!?
     gc.collect()
