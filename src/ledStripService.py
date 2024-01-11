@@ -10,13 +10,6 @@ class LedStripService:
         thread = threading.Thread(target=self.makePostRequest, args=(function, data,))
         thread.start()
 
-    def setDarkMode(self, value: bool):
-        self.darkMode = value
-        if self.darkMode:
-            self.turnLightsOn()
-        else:
-            self.turnLightsOff()
-
     def makePostRequest(self, function, data = None):
         headers = {
             'Content-type': 'application/json',
@@ -28,13 +21,19 @@ class LedStripService:
         except Exception as e:
             print(f'Could not post to: {self.url + function} with data:{data} error: {e}')
     
-    def goalScored(self, team):
-        data = {
-            "team": team
-        }
-        self.sendPostRequest('/goal_scored', data)
+    def setDarkMode(self, value: bool):
+        self.darkMode = value
         if self.darkMode:
             self.turnLightsOn()
+        else:
+            self.turnLightsOff()
+
+    def goalScored(self, team):
+        data = {
+            "team": team,
+            "darkMode": self.darkMode
+        }
+        self.sendPostRequest('/goal_scored', data)
 
     def turnLightsOn(self):
         data = {
@@ -50,14 +49,15 @@ class LedStripService:
         self.sendPostRequest('/light_switch', data)
 
     def gameStarted(self):
-        self.sendPostRequest('/game_started')
-        if self.darkMode:
-            self.turnLightsOn()
+        data = {
+            'darkMode': self.darkMode
+        }
+
+        self.sendPostRequest('/game_started', data)
     
     def gameCompleted(self, winningTeam):
         data = {
-            'winningTeam': winningTeam
+            'winningTeam': winningTeam,
+            'darkMode': self.darkMode
         }
         self.sendPostRequest('/game_completed', data)
-        if self.darkMode:
-            self.turnLightsOn()

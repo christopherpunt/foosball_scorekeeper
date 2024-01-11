@@ -59,13 +59,24 @@ def handleGoalScored():
         else:
             print(f'Something went wrong! data:{data} team: {team}')
 
+        if 'darkMode' in data:
+            if data['darkMode']:
+                ledStrip.allOn(AllLedsSameColor((255,255,255)))
+
     return jsonify({'success': True})
 
 
 @app.route('/game_started', methods=['POST'])
 def handleGameStarted():
+    data = request.get_json()
     ledStrip.allOn(AllLedsSameColor((255,0,0)))
-    time.sleep(5)
+    time.sleep(3)
+
+    if 'darkMode' in data:
+        if data['darkMode']:
+            ledStrip.allOn(AllLedsSameColor((255,255,255)))
+            return jsonify({'success': True})
+        
     ledStrip.allOff()
 
     return jsonify({'success': True})
@@ -85,6 +96,10 @@ def handleGameCompleted():
             for i in range(5):
                 ledStrip.race(allLeds, list(reversed(allLeds)), False, 35, AllLedsSameColor((0,0,255)))
             success = True
+        
+        if 'darkMode' in data:
+            if data['darkMode']:
+                ledStrip.allOn(AllLedsSameColor((255,255,255)))
 
     return jsonify({'success': success})
 
