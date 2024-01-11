@@ -7,8 +7,6 @@ import sys
 import gc
 import network
 
-import webrepl
-
 # make sure the 'team' and 'thisIpAddress' variables are set in boot.py
 # team = 'RED'  or  team = 'BLACK'
 # so we can replace this program without having to worry about the team setting
@@ -61,9 +59,7 @@ def connectToWifi():
             pass
         
         print(f'Connected with IP config {wlan.ifconfig()}')
-    
-    webrepl.start()
-    
+     
     global baseUrl
     baseUrl = 'http://{}:5001'.format(backendIpAddress)
     
@@ -84,7 +80,7 @@ def sendPostRequest(url, data):
             return True
         except Exception as e:
             print("POST Error:", e)
-            sleep_ms(100)
+            sleep_ms(1000)
     return False
         
 def lights(r, g, b):

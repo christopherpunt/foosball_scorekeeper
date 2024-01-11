@@ -78,12 +78,12 @@ def handleGameCompleted():
 
     if data and 'winningTeam' in data:
         if data['winningTeam'] == 'RED':
-            for i in range(10):
-                ledStrip.race(allLeds, None, False, 50, AllLedsSameColor((0,255,0)))
+            for i in range(5):
+                ledStrip.race(allLeds, list(reversed(allLeds)), False, 35, AllLedsSameColor((0,255,0)))
             success = True
         elif data['winningTeam'] == 'BLACK':
-            for i in range(10):
-                ledStrip.race(allLeds, None, False, 50, AllLedsSameColor((0,0,255)))
+            for i in range(5):
+                ledStrip.race(allLeds, list(reversed(allLeds)), False, 35, AllLedsSameColor((0,0,255)))
             success = True
 
     return jsonify({'success': success})
