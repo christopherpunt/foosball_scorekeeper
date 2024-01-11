@@ -1,5 +1,6 @@
 from machine import Pin, ADC
 from time import sleep_ms
+from _thread import start_new_thread
 import urequests as requests
 import ujson as json
 import neopixel
@@ -67,7 +68,6 @@ def connectToWifi():
 
 
 def sendPostRequest(url, data):    
-    
     if not wlan.isconnected():
         connectToWifi()
     
@@ -81,6 +81,14 @@ def sendPostRequest(url, data):
             gc.collect()
             print("POST Error:", e)
     return False
+
+def send_ping_thread():
+    while True:
+        ping_data = {
+            'averageValue': averageValue
+        }
+        sendPostRequest(baseUrl + '/ping', ping_data)
+        sleep_ms(10000)  # Sleep for 10 seconds
 
 def lights(r, g, b):
     for j in range(numLeds):
@@ -144,6 +152,7 @@ except NameError:
 lightsRed()
 connectToWifi()
 initGoalCountMode()
+start_new_thread(send_ping_thread, ())
 
 while True:
     sleep_ms(1)
@@ -154,6 +163,3 @@ while True:
         gc.collect()
         goal(currentValue)
         initGoalCountMode()
-
-
-

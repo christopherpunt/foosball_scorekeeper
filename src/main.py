@@ -90,6 +90,14 @@ def turnLightsOff():
     ledStripService.turnLightsOff()
     return render_template('settings.html')
 
+@app.route('/ping', methods=['POST'])
+def handlePing():
+    json = requestToJson(request)
+    if 'averageValue' in json:
+        print(f"averageValue: {json.get('averageValue')}")
+
+    return jsonify({'success': True})
+
 @socketio.on('get_initial_data')
 def handle_get_initial_data():
     gameManager.updateCurrentGameData()
