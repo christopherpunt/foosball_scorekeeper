@@ -43,7 +43,7 @@ class LeaderboardStats:
                 player_stats[player] = {'wins': wins, 'losses': losses}
 
         # Sort players based on wins and losses
-        sortedTeams = sorted(player_stats.items(), key=lambda x: (x[1]['wins'] / (x[1]['wins'] + x[1]['losses']), x[1]['wins'], -x[1]['losses']), reverse=True)
+        sortedTeams = sorted(player_stats.items(), key=lambda x: ((x[1]['wins'] /  x[1]['losses']) if x[1]['losses'] != 0 else x[1]['wins']), reverse=True)
         return sortedTeams[:10]
 
     def getTeamStats(self):
@@ -68,7 +68,7 @@ class LeaderboardStats:
                 team_stats[(black_team[0], black_team[1])]['wins' if winning_team == 'BLACK' else 'losses'] += 1
 
         # Sort teams based on wins and losses
-        sorted_teams = sorted(team_stats.items(), key=lambda x: (x[1]['wins'] / (x[1]['wins'] + x[1]['losses']), x[1]['wins'], -x[1]['losses']),  reverse=True)
+        sorted_teams = sorted(team_stats.items(), key=lambda x: ((x[1]['wins'] /  x[1]['losses']) if x[1]['losses'] != 0 else x[1]['wins']),  reverse=True)
 
         #only return the top ten
         return sorted_teams[:10]
@@ -154,8 +154,6 @@ class LeaderboardStats:
         return sorted(team_stats.items(), key=lambda x: (x[1]['length']))[:10]
     
     def getRecentGameHistory(self):
-
-
         team_stats = defaultdict(lambda: {'length': None, 'score': '0-0'})
 
         for game_info in self._db.table('_default').all():
