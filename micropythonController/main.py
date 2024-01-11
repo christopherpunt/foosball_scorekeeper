@@ -1,6 +1,5 @@
-from machine import Pin, ADC
+from machine import Pin, ADC, Timer
 from time import sleep_ms
-from _thread import start_new_thread
 import urequests as requests
 import ujson as json
 import neopixel
@@ -8,37 +7,43 @@ import sys
 import gc
 import network
 
-# make sure the team variable is set in boot.py
+import webrepl
+
+# make sure the 'team' and 'thisIpAddress' variables are set in boot.py
 # team = 'RED'  or  team = 'BLACK'
 # so we can replace this program without having to worry about the team setting
 
-analogIn = ADC(0)
-# here we store the last vaerage value from the photo cell
-averageValue = 0
+# ------------- some config stuff --------------
 
+# here we store the last average value from the photo cell
+averageValue = 0
 # the delta when we consider it a goal
 deltaMeassureValue = 50
+
+backendIpAddress = '10.42.0.1'
 
 ssid = 'foosball'
 wifipassword = 'TGW66200'
 
+numLeds = 3
+
+# ------------- some config stuff --------------
+
 baseUrl = ''
 
-numLeds = 3
+analogIn = ADC(0)
 np = neopixel.NeoPixel(Pin(4), numLeds)
 
-network.hostname(team)
+network.hostname(f'NodeMCU Team {team}')
 network.country('US')
 
-backendIpAddress = '10.42.0.1'
-
-# let's see if turning off the AP helps a bit
-ap = network.WLAN(network.AP_IF)
-ap.active(False) 
+def send_ping(t):
+    sendPostRequest(baseUrl + '/ping', { 'averageValue': averageValue })
+    # strange enough: without that gc.collect we get random connection aborted 103 errors
+    # when trying to send a post request; this seems to make it a bit better ?!?
+    gc.collect()
 
 def connectToWifi():
-    global wlan
-    
     wlan = network.WLAN(network.STA_IF)
     wlan.active(True)
     
@@ -51,45 +56,33 @@ def connectToWifi():
         while not wlan.isconnected():
             pass
         
-        print(wlan.ifconfig())
+        print(f'Connected with IP config {wlan.ifconfig()}')
     
-    # index 2 contains the ip address of the 'gateway', so this will be our raspi
+    webrepl.start()
+    
     global baseUrl
     baseUrl = 'http://{}:5001'.format(backendIpAddress)
-    print(baseUrl)
     
-    data = {
-        'team': team,
-        'controllerIp': thisIpAddress
-    }
+    # this should keep the wifi connection open
+    tim = Timer(-1)
+    tim.init(period=5000, mode=Timer.PERIODIC, callback=send_ping)
+    
     # as long as we can not connect to the backend we stay in here
-    while not sendPostRequest(baseUrl + '/register_goal_counter', data):
+    while not sendPostRequest(baseUrl + '/register_goal_counter', { 'team': team, 'controllerIp': thisIpAddress }):
         pass
 
 
 def sendPostRequest(url, data):    
-    if not wlan.isconnected():
-        connectToWifi()
-    
     for i in range(5):
         try:
-            response = requests.post(url, data=json.dumps(data))
-            print("Response status code:", response.status_code)
-            print("Response content:", response.text)
+            response = requests.post(url, data=json.dumps(data, separators=(',', ':')))
+            print(f'Response status code: {response.status_code}, content: {response.text}')
             return True
         except Exception as e:
-            gc.collect()
             print("POST Error:", e)
+            sleep_ms(100)
     return False
-
-def send_ping_thread():
-    while True:
-        ping_data = {
-            'averageValue': averageValue
-        }
-        sendPostRequest(baseUrl + '/ping', ping_data)
-        sleep_ms(10000)  # Sleep for 10 seconds
-
+        
 def lights(r, g, b):
     for j in range(numLeds):
         np[j] = (r, g, b)
@@ -115,7 +108,7 @@ def initGoalCountMode():
     global averageValue
     for x in range(10):
         sumAverageValue = sumAverageValue + analogIn.read()
-        sleep_ms(100)
+        sleep_ms(50)
     averageValue = sumAverageValue / 10
     print(f'average: {averageValue}')
 
@@ -133,33 +126,24 @@ def goal(currentValue):
     print(f'Goal!!! Current {currentValue}, Avg {averageValue}')
     lightsGreen()
     
-    data = {
-        'team': team,
-        'currentValue': currentValue,
-        'averageValue': averageValue
-    }
-    sendPostRequest(baseUrl + '/add_score', data)
+    sendPostRequest(baseUrl + '/add_score', { 'team': team, 'currentValue': currentValue, 'averageValue': averageValue })
     cycleGoalLights()
-
 
 try:
     team
+    thisIpAddress
 except NameError:    
-    print('Make sure you set the team variable in boot.py, e. g. team = \'RED\'')
+    print('Make sure you set the team and thisIpAddress variables in boot.py')
     sys.exit()
-
 
 lightsRed()
 connectToWifi()
 initGoalCountMode()
-start_new_thread(send_ping_thread, ())
 
 while True:
     sleep_ms(1)
     currentValue = analogIn.read()
     if isGoal(currentValue, averageValue):
-        # strange enough: without that gc.collect we get random connection aborted 103 errors
-        # when trying to send a post request; this seems to make it a bit better ?!?
-        gc.collect()
         goal(currentValue)
         initGoalCountMode()
+
