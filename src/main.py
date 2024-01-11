@@ -82,12 +82,12 @@ def registerGoalCounter():
 
 @app.route('/lights_on', methods=['POST'])
 def turnLightsOn():
-    ledStripService.turnLightsOn()
+    ledStripService.setDarkMode(True)
     return render_template('settings.html')
 
 @app.route('/lights_off', methods=['POST'])
 def turnLightsOff():
-    ledStripService.turnLightsOff()
+    ledStripService.setDarkMode(False)
     return render_template('settings.html')
 
 @app.route('/ping', methods=['POST'])

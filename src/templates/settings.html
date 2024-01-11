@@ -22,12 +22,21 @@
         }
 
         input[type="submit"] {
-            padding: 10px;
-            font-size: 16px;
+            padding: 50px; /* Increase padding for a bigger button */
+            font-size: 50px;
             cursor: pointer;
-            background-color: #4caf50;
-            color: #fff;
             border: none;
+            border-radius: 10px; /* Add border-radius for rounded edges */
+        }
+
+        #lightsFormOn input[type="submit"] {
+            background-color: #4caf50; /* Green for "On" button */
+            color: #fff;
+        }
+
+        #lightsFormOff input[type="submit"] {
+            background-color: #ff5555; /* Red for "Off" button */
+            color: #fff;
         }
     </style>
 {% endblock %}

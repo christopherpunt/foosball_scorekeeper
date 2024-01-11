@@ -4,10 +4,18 @@ import threading
 class LedStripService:
     def __init__(self, url) -> None:
         self.url = url
+        self.darkMode = False
 
     def sendPostRequest(self, function, data = None):
         thread = threading.Thread(target=self.makePostRequest, args=(function, data,))
         thread.start()
+
+    def setDarkMode(self, value: bool):
+        self.darkMode = value
+        if self.darkMode:
+            self.turnLightsOn()
+        else:
+            self.turnLightsOff()
 
     def makePostRequest(self, function, data = None):
         headers = {
@@ -25,6 +33,8 @@ class LedStripService:
             "team": team
         }
         self.sendPostRequest('/goal_scored', data)
+        if self.darkMode:
+            self.turnLightsOn()
 
     def turnLightsOn(self):
         data = {
@@ -41,9 +51,13 @@ class LedStripService:
 
     def gameStarted(self):
         self.sendPostRequest('/game_started')
+        if self.darkMode:
+            self.turnLightsOn()
     
     def gameCompleted(self, winningTeam):
         data = {
             'winningTeam': winningTeam
         }
         self.sendPostRequest('/game_completed', data)
+        if self.darkMode:
+            self.turnLightsOn()
