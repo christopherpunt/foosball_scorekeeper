@@ -68,8 +68,10 @@ def addScore():
             ledStripService.gameCompleted(gameManager.currentGame.winningTeam)
         else:
             ledStripService.goalScored(team_value)
-
-        return returnValue
+        if returnValue:
+            return jsonify({'success': True})
+        else:
+            return jsonify({'success': False, 'message': f'could not add score.'})
     return jsonify({'success': False, 'message': f'Game not started could not add score.'})
 
 # the goal counters / controllers need to register first before we can start a game

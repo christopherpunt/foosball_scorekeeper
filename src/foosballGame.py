@@ -1,5 +1,4 @@
 from configuration import Configuration
-from flask import jsonify
 from enum import Enum
 from tinydb import TinyDB, Query
 from datetime import datetime
@@ -27,20 +26,21 @@ class FoosballGame:
     def addScore(self, team):
         if self.isFinished:
             print('game already finished, cannot change score')
-            return jsonify({'success': False, 'message': 'game already finished, cannot change score'})
+            return False
 
         scoreAdded = False
         if (team == TeamEnum.BLACK.name) and self.blackTeamScore < Configuration.gameWinningAmount:
             self.blackTeamScore += 1
             scoreAdded = True
-            return jsonify({'success': True})
+            return True
         elif (team == TeamEnum.RED.name) and self.redTeamScore < Configuration.gameWinningAmount:
             self.redTeamScore += 1
-            return jsonify({'success': True})    
+            scoreAdded = True
         
         if not scoreAdded:
             print(f'score for {team} could not be added')
-            return jsonify({'success': False, 'message': f'could not add score for {team}'})
+            
+        return scoreAdded
     
     def removeScore(self, team):
         if (team == TeamEnum.BLACK.name) and self.blackTeamScore > 0:
@@ -88,9 +88,9 @@ class FoosballGameManager:
                 blackPlayer2 = blackSelectedPlayers[1] if len(blackSelectedPlayers) == 2 else None
 
                 self.currentGame = FoosballGame(redPlayer1=redPlayer1, blackPlayer1=blackPlayer1, redPlayer2=redPlayer2, blackPlayer2=blackPlayer2)
-                return jsonify({'success': True, 'message': 'Game Started'})
+                return True
 
-        return jsonify({'success': False, 'message': 'Could not start game, teams not ready or players not unique'})
+        return False
 
     def updateCurrentGameData(self):
         if self.currentGame is not None:
