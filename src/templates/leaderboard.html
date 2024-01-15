@@ -171,19 +171,19 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Winning Team</th>
-                        <th>Losing Team</th>
-                        <th>Length</th>
+                        <th>Red Team</th>
+                        <th>Black Team</th>
                         <th>Score</th>
+                        <th>Length</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for team, team_stats in stats.shortestGame %}
+                    {% for team_stats in stats.shortestGame %}
                     <tr>
-                        <td class="player-cell">{{ team[0] }}</td>
-                        <td class="player-cell">{{ team[1] }}</td>
-                        <td>{{ team_stats.length }}</td>
-                        <td>{{ team_stats.score }}</td>
+                        <td class="player-cell">{{ team_stats[0] }}</td>
+                        <td class="player-cell">{{ team_stats[1] }}</td>
+                        <td>{{ team_stats[2] }}</td>
+                        <td>{{ team_stats[3] }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -195,21 +195,21 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Winning Team</th>
-                        <th>Losing Team</th>
+                        <th>Red Team</th>
+                        <th>Black Team</th>
                         <th>Length</th>
                         <th>Score</th>
                         <th>Finish Date</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for team, team_stats in stats.recentGameHistory %}
+                    {% for team_stats in stats.recentGameHistory %}
                     <tr>
-                        <td class="player-cell">{{ team[0] }}</td>
-                        <td class="player-cell">{{ team[1] }}</td>
-                        <td>{{ team_stats.length }}</td>
-                        <td>{{ team_stats.score }}</td>
-                        <td>{{ team_stats.finishDate }}</td>
+                        <td class="player-cell">{{ team_stats[0] }}</td>
+                        <td class="player-cell">{{ team_stats[1] }}</td>
+                        <td>{{ team_stats[2] }}</td>
+                        <td>{{ team_stats[3] }}</td>
+                        <td>{{ team_stats[4] }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

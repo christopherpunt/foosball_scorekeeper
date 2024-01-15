@@ -42,8 +42,8 @@ class LeaderboardStats:
             if player is not None:
                 player_stats[player] = {'wins': wins, 'losses': losses}
 
-        # Sort players based on wins and losses
-        sortedTeams = sorted(player_stats.items(), key=lambda x: ((x[1]['wins'] /  x[1]['losses']) if x[1]['losses'] != 0 else x[1]['wins']), reverse=True)
+        # Sort players first by win ratio wins/losses but if losses is 0 then ratio is 0, then by win rate (wins/ (wins + losses)), there should always be at least 1 win or loss, so no need to check divide by 0
+        sortedTeams = sorted(player_stats.items(), key=lambda x: ((x[1]['wins'] /  x[1]['losses']) if x[1]['losses'] != 0 else x[1]['wins'], x[1]['wins'] / (x[1]['wins'] + x[1]['losses'])), reverse=True)
         return sortedTeams[:10]
 
     def getTeamStats(self):
@@ -67,8 +67,8 @@ class LeaderboardStats:
                 team_stats[(red_team[0], red_team[1])]['wins' if winning_team == 'RED' else 'losses'] += 1
                 team_stats[(black_team[0], black_team[1])]['wins' if winning_team == 'BLACK' else 'losses'] += 1
 
-        # Sort teams based on wins and losses
-        sorted_teams = sorted(team_stats.items(), key=lambda x: ((x[1]['wins'] /  x[1]['losses']) if x[1]['losses'] != 0 else x[1]['wins']),  reverse=True)
+        # Sort team first by win ratio wins/losses but if losses is 0 then ratio is 0, then by win rate (wins/ (wins + losses)), there should always be at least 1 win or loss, so no need to check divide by 0
+        sorted_teams = sorted(team_stats.items(), key=lambda x: ((x[1]['wins'] /  x[1]['losses']) if x[1]['losses'] != 0 else x[1]['wins'], x[1]['wins'] / (x[1]['wins'] + x[1]['losses'])), reverse=True)
 
         #only return the top ten
         return sorted_teams[:10]
@@ -117,7 +117,7 @@ class LeaderboardStats:
         return sorted(teamData.items(), key=lambda x: (x[1]), reverse=True)
 
     def getShortestGames(self):
-        team_stats = defaultdict(lambda: {'length': None, 'score': '0-0'})
+        game_stats = []
 
         for game_info in self._db.table('_default').all():
             red_team = [player for player in [game_info.get('redPlayer1', None), game_info.get('redPlayer2', None)] if player is not None]
@@ -125,36 +125,21 @@ class LeaderboardStats:
 
             # Check if the game is finished
             if game_info.get('isFinished', False):
-                # Determine the winning team
-                winning_team = game_info['winningTeam']
-
                 # Create canonical team representation by sorting player names
                 red_team.sort()
                 black_team.sort()
 
-                # Update team statistics for all player combinations and team assignments
-                if winning_team == "RED":
-                    winningTeamString = f"{red_team[0] + ' - ' + red_team[1] if len(red_team) == 2 else red_team[0]}"
-                    losingTeamString = f"{black_team[0] + ' - ' + black_team[1] if len(black_team) == 2 else black_team[0]}"
-                    duration = datetime.strptime(game_info['finishTime'], Configuration.dateFormat) - datetime.strptime(game_info['startTime'], Configuration.dateFormat)
-                    scoreString = f"{game_info.get('redTeamScore', 0)} -- {game_info.get('blackTeamScore', 0)}"
+                redTeamString = f"{red_team[0] + ' - ' + red_team[1] if len(red_team) == 2 else red_team[0]}"
+                blackTeamString = f"{black_team[0] + ' - ' + black_team[1] if len(black_team) == 2 else black_team[0]}"
+                duration = datetime.strptime(game_info['finishTime'], Configuration.dateFormat) - datetime.strptime(game_info['startTime'], Configuration.dateFormat)
+                scoreString = f"{game_info.get('redTeamScore', 0)} -- {game_info.get('blackTeamScore', 0)}"
 
-                    team_stats[(winningTeamString, losingTeamString)]['length'] = duration
-                    team_stats[(winningTeamString, losingTeamString)]['score'] = scoreString
+                game_stats.append((redTeamString, blackTeamString, scoreString, duration))
 
-                if winning_team == "BLACK":
-                    losingTeamString = f"{red_team[0] + ' - ' + red_team[1] if len(red_team) == 2 else red_team[0]}"
-                    winningTeamString = f"{black_team[0] + ' - ' + black_team[1] if len(black_team) == 2 else black_team[0]}"
-                    duration = datetime.strptime(game_info['finishTime'], Configuration.dateFormat) - datetime.strptime(game_info['startTime'], Configuration.dateFormat)
-                    scoreString = f"{game_info.get('blackTeamScore', 0)} -- {game_info.get('redTeamScore', 0)}"
-
-                    team_stats[(winningTeamString, losingTeamString)]['length'] = duration
-                    team_stats[(winningTeamString, losingTeamString)]['score'] = scoreString
-
-        return sorted(team_stats.items(), key=lambda x: (x[1]['length']))[:10]
+        return sorted(game_stats, key=lambda x: (x[3]))[:10]
     
     def getRecentGameHistory(self):
-        team_stats = defaultdict(lambda: {'length': None, 'score': '0-0'})
+        game_stats = []
 
         for game_info in self._db.table('_default').all():
             red_team = [player for player in [game_info.get('redPlayer1', None), game_info.get('redPlayer2', None)] if player is not None]
@@ -169,26 +154,13 @@ class LeaderboardStats:
                 red_team.sort()
                 black_team.sort()
 
-                # Update team statistics for all player combinations and team assignments
-                if winning_team == "RED":
-                    winningTeamString = f"{red_team[0] + ' - ' + red_team[1] if len(red_team) == 2 else red_team[0]}"
-                    losingTeamString = f"{black_team[0] + ' - ' + black_team[1] if len(black_team) == 2 else black_team[0]}"
-                    duration = datetime.strptime(game_info['finishTime'], Configuration.dateFormat) - datetime.strptime(game_info['startTime'], Configuration.dateFormat)
-                    scoreString = f"{game_info.get('redTeamScore', 0)} -- {game_info.get('blackTeamScore', 0)}"
+                # Update game statistics for all player combinations and team assignments
+                redTeamString = f"{red_team[0] + ' - ' + red_team[1] if len(red_team) == 2 else red_team[0]}"
+                blackTeamString = f"{black_team[0] + ' - ' + black_team[1] if len(black_team) == 2 else black_team[0]}"
+                duration = datetime.strptime(game_info['finishTime'], Configuration.dateFormat) - datetime.strptime(game_info['startTime'], Configuration.dateFormat)
+                score_string = f"{game_info.get('redTeamScore', 0)} -- {game_info.get('blackTeamScore', 0)}"
+                finish_date = game_info['finishTime']
 
-                    team_stats[(winningTeamString, losingTeamString)]['length'] = duration
-                    team_stats[(winningTeamString, losingTeamString)]['score'] = scoreString
-                    team_stats[(winningTeamString, losingTeamString)]['finishDate'] = game_info['finishTime']
+                game_stats.append((redTeamString, blackTeamString, duration, score_string, finish_date))
 
-
-                if winning_team == "BLACK":
-                    losingTeamString = f"{red_team[0] + ' - ' + red_team[1] if len(red_team) == 2 else red_team[0]}"
-                    winningTeamString = f"{black_team[0] + ' - ' + black_team[1] if len(black_team) == 2 else black_team[0]}"
-                    duration = datetime.strptime(game_info['finishTime'], Configuration.dateFormat) - datetime.strptime(game_info['startTime'], Configuration.dateFormat)
-                    scoreString = f"{game_info.get('blackTeamScore', 0)} -- {game_info.get('redTeamScore', 0)}"
-
-                    team_stats[(winningTeamString, losingTeamString)]['length'] = duration
-                    team_stats[(winningTeamString, losingTeamString)]['score'] = scoreString
-                    team_stats[(winningTeamString, losingTeamString)]['finishDate'] = game_info['finishTime']
-
-        return sorted(team_stats.items(), key=lambda x: (x[1]['finishDate']), reverse=True)[:10]
+        return sorted(game_stats, key=lambda x: datetime.strptime(x[4], Configuration.dateFormat), reverse=True)[:10]
