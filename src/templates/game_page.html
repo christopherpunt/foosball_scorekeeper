@@ -132,6 +132,11 @@
     .player-name {
         font-size: 28px;
     }
+    
+    #timer {
+        font-size: 54px; /* Adjust the font size as needed */
+        font-weight: bold;
+    }
 
 </style>
 
@@ -188,11 +193,13 @@
     </div>
 </div>
 
-
+<div id="timer" class="timer"></div>
 
 <script src="/static/socket.io.min.js"></script>
 <script>
     const socket = io.connect('http://' + document.domain + ':' + location.port + '/');
+    let gameStartTime;
+
     socket.on('connect', function() {
         console.log('Socket connected');
 
@@ -209,6 +216,15 @@
         document.getElementById('blackPlayer1').innerText = data.blackPlayer1;
         document.getElementById('blackPlayer2').innerText = data.blackPlayer2;
         document.getElementById('blackScore').innerText = data.blackTeamScore;
+
+        if (!gameStartTime && data.startTime) {
+            // Set the game start time if it's not set yet
+            gameStartTime = parseCustomDateFormat(data.startTime).getTime();
+        }
+
+        // Update the timer every second
+        updateTimer();
+        setInterval(updateTimer, 1000);
 
         if (data.isFinished){
             displayWinningPopup(data.winningTeam);
@@ -259,6 +275,48 @@
         socket.emit('game_completed')
         window.location.pathname = ("/")
     }
+
+    function updateTimer() {
+        console.log(`updating timer: gameStartTime: ${gameStartTime}`)
+        if (gameStartTime) {
+            const currentTime = new Date().getTime();
+            const elapsedSeconds = Math.floor((currentTime - gameStartTime) / 1000);
+
+            const timerElement = document.getElementById('timer');
+            timerElement.innerText = `${formatTime(elapsedSeconds)}`;
+        }
+    }
+
+    function formatTime(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+
+        return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+    }
+
+    function parseCustomDateFormat(dateString) {
+    const regex = /(\d+)\/(\d+)\/(\d+), (\d+):(\d+):(\d+)([APMapm]{2})/;
+    const match = dateString.match(regex);
+
+    if (!match) {
+        // Handle invalid date string
+        return null;
+    }
+
+    const [, month, day, year, hours, minutes, seconds, period] = match;
+    const parsedMonth = parseInt(month) - 1; // Months are zero-based in JavaScript Date
+
+    let parsedHours = parseInt(hours);
+    
+    // Adjust hours for AM/PM
+    if (period.toLowerCase() === 'pm' && parsedHours < 12) {
+        parsedHours += 12;
+    } else if (period.toLowerCase() === 'am' && parsedHours === 12) {
+        parsedHours = 0;
+    }
+
+    return new Date(year, parsedMonth, day, parsedHours, parseInt(minutes), parseInt(seconds));
+}
     
 </script>
 
