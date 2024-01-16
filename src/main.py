@@ -56,7 +56,12 @@ def start_game():
 
 @app.route('/add_user', methods=['POST'])
 def addUser():
-    return playerManager.addNewPlayer(request)
+    json = requestToJson(request)
+    result = playerManager.addNewPlayer(json.get('newUser', ''))
+    if result:
+        return jsonify({'success': True})
+    return jsonify({'success': False, 'message': f'Could not add player'})
+
 
 @app.route('/add_score', methods=['POST'])
 def addScore():
