@@ -9,7 +9,11 @@ class Player:
         self.username = username
 
     def __eq__(self, other) -> bool:
-        return self.username == other.username 
+        if not isinstance(other, Player):
+            return False  # If the other object is not an instance of Player, they are not equal
+
+        # Check if both objects have the username property before comparing
+        return hasattr(self, 'username') and hasattr(other, 'username') and self.username == other.username
 
 class PlayerManager:
     def __init__(self, socketio) -> None:
