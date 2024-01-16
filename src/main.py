@@ -52,8 +52,10 @@ def game_page():
 def start_game():
     json = requestToJson(request)
     ledStripService.gameStarted()
-    return gameManager.startGame(json.get('RED'), json.get('BLACK'))
-
+    result = gameManager.startGame(json.get('RED'), json.get('BLACK'))
+    if result:
+        return jsonify({'success': True})
+    return jsonify({'success': False, 'message': f'Could not start game'})
 @app.route('/add_user', methods=['POST'])
 def addUser():
     json = requestToJson(request)
