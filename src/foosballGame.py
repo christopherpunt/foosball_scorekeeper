@@ -47,12 +47,15 @@ class FoosballGame:
             self.blackTeamScore -= 1
             if self.isFinished:
                 self.isFinished = False
+            return True
         elif (team == TeamEnum.RED.name) and self.redTeamScore > 0:
             self.redTeamScore -= 1      
             if self.isFinished:
                 self.isFinished = False
-        else:
-            print(f'could not remove score from {team}')
+            return True
+        
+        print(f'could not remove score from {team}')
+        return False
 
     def isGameFinished(self):
         if self.blackTeamScore >= Configuration.gameWinningAmount:
