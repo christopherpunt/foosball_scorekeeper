@@ -277,7 +277,6 @@
     }
 
     function updateTimer() {
-        console.log(`updating timer: gameStartTime: ${gameStartTime}`)
         if (gameStartTime) {
             const currentTime = new Date().getTime();
             const elapsedSeconds = Math.floor((currentTime - gameStartTime) / 1000);
@@ -295,7 +294,7 @@
     }
 
     function parseCustomDateFormat(dateString) {
-    const regex = /(\d+)\/(\d+)\/(\d+), (\d+):(\d+):(\d+)([APMapm]{2})/;
+    const regex = /(\d+)\/(\d+)\/(\d+), (\d+):(\d+):(\d+) ([APMapm]{2})/;
     const match = dateString.match(regex);
 
     if (!match) {
