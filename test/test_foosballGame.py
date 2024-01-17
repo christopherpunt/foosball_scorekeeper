@@ -2,8 +2,24 @@ from foosballGame import FoosballGame, FoosballGameManager
 from configuration import Configuration
 from unittest.mock import Mock
 from testConfiguration import TestConfiguration
+from tinydb import TinyDB
 import pytest
 import os
+
+@pytest.fixture(scope="class")
+def test_database(request):
+    # Create the file once for the entire test class
+    db_path = TestConfiguration.foosballGamesDatabase
+    with open(db_path, 'w') as file:
+        pass  # Empty file
+
+    # Provide the database path to the tests
+    request.cls.db_path = db_path
+
+    yield db_path  # This is the value returned by the fixture
+
+    # Delete the file after all tests in the class have run
+    os.remove(db_path)
 
 @pytest.fixture
 def mock_socketio():
@@ -15,12 +31,12 @@ def foosballGameManager(mock_socketio):
         yield FoosballGameManager(mock_socketio)
 
 @pytest.fixture(autouse=True)
-def setup_teardown_test_database():
-    try:
-        # Use the test configuration for the database path
-        os.remove(TestConfiguration.playersDatabase)
-    except FileNotFoundError:
-        pass  # Ignore the error if the file doesn't exist
+def setup_teardown_test_database(request):
+    # Truncate the file between individual tests
+    db_path = TestConfiguration.foosballGamesDatabase
+    with TinyDB(db_path, indent=2) as db:
+        db.truncate()
+
 
 @pytest.fixture
 def game():
