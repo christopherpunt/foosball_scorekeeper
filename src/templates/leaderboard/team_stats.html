@@ -1,7 +1,7 @@
-<!-- player_stats.html -->
+<!-- team_stats.html -->
 
 {% extends 'base.html' %}
-{% block title %}Player Stats{% endblock %}
+{% block title %}Team Stats{% endblock %}
 
 {% block styles %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/leaderboardStyles.css') }}">
@@ -9,7 +9,6 @@
 
 {% block content %}
     <!-- TODO: add back button -->
-
-    {% include 'leaderboard/player_stats_section.html' %}
+    {% include 'leaderboard/team_stats_section.html' %}
 {% endblock %}
 

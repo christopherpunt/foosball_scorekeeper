@@ -1,0 +1,36 @@
+<!-- team_stats_section.html -->
+
+
+<a href="/leaderboard/team_stats" class="table-card">
+    <h3>Top Teams</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Players</th>
+                <th>Wins</th>
+                <th>Losses</th>
+                <th>W/L</th>
+                <th>Win Rate</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for team, team_stats in stats %}
+            <tr>
+                <td class="player-cell">{{ team[0] }} - {{ team[1] }}</td>
+                <td>{{ team_stats.wins }}</td>
+                <td>{{ team_stats.losses }}</td>
+                <td>
+                    {% if team_stats.losses != 0 %}
+                    {{ (team_stats.wins / team_stats.losses) | round(2) }}
+                    {% else %}
+                    {{ team_stats.wins}}
+                    {% endif %}
+                </td>
+                <td>
+                    {{ (team_stats.wins / (team_stats.wins + team_stats.losses) * 100) | round | int}}%
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</a>

@@ -35,10 +35,15 @@ def getLeaderboardStats():
     stats = leaderboardStats.getAllStats()
     return render_template('leaderboard.html', all_stats=stats)
 
-@app.route('/leaderboard/playerStats')
+@app.route('/leaderboard/player_stats')
 def playerStats():
     stats = leaderboardStats.getPlayerStats()
     return render_template('leaderboard/player_stats.html', stats=stats)
+
+@app.route('/leaderboard/team_stats')
+def teamStats():
+    stats = leaderboardStats.getTeamStats()
+    return render_template('leaderboard/team_stats.html', stats=stats)
 
 @app.route('/players')
 def getAllPlayers():

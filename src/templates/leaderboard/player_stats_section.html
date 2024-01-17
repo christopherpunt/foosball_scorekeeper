@@ -1,35 +1,36 @@
-<a href="/leaderboard/playerStats">
-    <div class="table-card">
-        <h3>Top Players</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Player</th>
-                    <th>Wins</th>
-                    <th>Losses</th>
-                    <th>W/L</th>
-                    <th>Win Rate</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for player, stats in stats %}
-                <tr>
-                    <td class="player-cell">{{ player }}</td>
-                    <td>{{ stats.wins }}</td>
-                    <td>{{ stats.losses }}</td>
-                    <td>
-                        {% if stats.losses != 0 %}
-                        {{ (stats.wins / stats.losses) | round(2) }}
-                        {% else %}
-                        {{ stats.wins}}
-                        {% endif %}
-                    </td>
-                    <td>
-                        {{ (stats.wins / (stats.wins + stats.losses) * 100) | round | int}}%
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+<!-- player_stats_section.html -->
+
+
+<a href="/leaderboard/player_stats" class="table-card">
+    <h3>Top Players</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Player</th>
+                <th>Wins</th>
+                <th>Losses</th>
+                <th>W/L</th>
+                <th>Win Rate</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for player, stats in stats %}
+            <tr>
+                <td class="player-cell">{{ player }}</td>
+                <td>{{ stats.wins }}</td>
+                <td>{{ stats.losses }}</td>
+                <td>
+                    {% if stats.losses != 0 %}
+                    {{ (stats.wins / stats.losses) | round(2) }}
+                    {% else %}
+                    {{ stats.wins}}
+                    {% endif %}
+                </td>
+                <td>
+                    {{ (stats.wins / (stats.wins + stats.losses) * 100) | round | int}}%
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </a>
