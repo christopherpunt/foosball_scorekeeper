@@ -1,0 +1,56 @@
+<!-- hiddenStats.html -->
+
+{% extends 'base.html' %}
+
+{% block title %}Hidden Stats{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/leaderboardStyles.css') }}">
+{% endblock %}
+
+{% block content %}
+<main>
+    <div class="table-card">
+        <h3>Top number of games and time spent</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Player</th>
+                    <th>Games</th>
+                    <th>TotalTime</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for player, data in hiddenStats.playerWastedTime %}
+                <tr>
+                    <td class="same_line">{{ player }}</td>
+                    <td>{{ data.numGames }}</td>
+                    <td>{{ data.totalTime }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="table-card">
+        <h3>Total Game Time</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Total Games</th>
+                    <th>Total Time</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{hiddenStats.totalGames[0]}}</td>
+                    <td>{{hiddenStats.totalGames[1]}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+{% endblock %}
+
+</html>

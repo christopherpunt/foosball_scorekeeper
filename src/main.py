@@ -60,6 +60,11 @@ def teamBeans():
     stats = leaderboardStats.getTeamBeans()
     return render_template('leaderboard/bean_stats.html', stats=stats)
 
+@app.route('/hiddenStats')
+def hiddenStats():
+    stats = leaderboardStats.getHiddenStats()
+    return render_template('hiddenStats.html', hiddenStats=stats)
+
 @app.route('/players')
 def getAllPlayers():
     return render_template('/players.html', players=playerManager.getAllPlayers())
