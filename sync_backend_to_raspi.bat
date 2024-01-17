@@ -1,1 +1,1 @@
-winscp.exe /defaults /synchronize // "C:\workspace\azurerepo\foos_scorecounter\src" /home/wolfgang/foos_backend
+winscp.exe /defaults /synchronize // "%CD%\src" /home/wolfgang/foos_backend
