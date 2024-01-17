@@ -18,7 +18,7 @@ class Player:
 class PlayerManager:
     def __init__(self, socketio) -> None:
         self.socketio = socketio
-        self._db = TinyDB(Configuration.playersDatabase, indent=2)
+        self._db = TinyDB(Configuration.playersDatabase, indent=2, create_dirs=True)
 
     def getAllPlayers(self):
         players = []

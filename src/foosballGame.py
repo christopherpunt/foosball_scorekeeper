@@ -21,7 +21,7 @@ class FoosballGame:
         self.isFinished = False
         self.startTime = datetime.now().strftime(Configuration.dateFormat)
 
-        self._db = TinyDB(Configuration.foosballGamesDatabase, indent=2)
+        self._db = TinyDB(Configuration.foosballGamesDatabase, indent=2, create_dirs=True)
 
     def addScore(self, team):
         if self.isFinished:
