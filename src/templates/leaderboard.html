@@ -5,216 +5,141 @@
 {% block title %}Leaderboard{% endblock %}
 
 {% block styles %}
-<style>
-    h1 {
-        text-align: center;
-    }
-    h3 {
-        text-align: center;
-        margin: 10px;
-    }
-
-    main {
-        display: flex;
-        justify-content: space-around;
-        flex-wrap: wrap; /* Enable wrapping for flex items */
-    }
-
-    .table-card {
-        flex: 1 1 20%; /* Adjust the values as needed */
-        margin: 5px;
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-
-    .table-card table {
-        max-width: 100%;
-        width: 100%;
-        table-layout: auto;
-    }
-
-    table {
-        border-collapse: collapse;
-        width: 100%;
-    }
-
-    th, td {
-        border: 1px solid #ddd;
-        padding: 8px;
-        text-align: left;
-    }
-
-    td.player-cell {
-        width: 30%;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis; 
-    }
-
-</style>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/leaderboardStyles.css') }}">
 {% endblock %}
 
 {% block content %}
-    <main>
-        <div class="table-card">
-            <h3>Top Players</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Player</th>
-                        <th>Wins</th>
-                        <th>Losses</th>
-                        <th>W/L</th>
-                        <th>Win Rate</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for player, stats in stats.playerStats %}
-                        <tr>
-                            <td class="player-cell">{{ player }}</td>
-                            <td>{{ stats.wins }}</td>
-                            <td>{{ stats.losses }}</td>
-                            <td>
-                                {% if stats.losses != 0 %}
-                                    {{ (stats.wins / stats.losses) | round(2) }}
-                                {% else %}
-                                    {{ stats.wins}}
-                                {% endif %}                            
-                            </td>
-                            <td>
-                                {{ (stats.wins / (stats.wins + stats.losses) * 100) | round | int}}%
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+<main>
+    <!-- set include navbar to false so that the sections wont also put in the nav bar -->
+    {% set includeNavBar=false %}
 
-        <div class="table-card">
-            <h3>Top Teams</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Players</th>
-                        <th>Wins</th>
-                        <th>Losses</th>
-                        <th>W/L</th>
-                        <th>Win Rate</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for team, team_stats in stats.teamStats %}
-                        <tr>
-                            <td class="player-cell">{{ team[0] }} - {{ team[1] }}</td>
-                            <td>{{ team_stats.wins }}</td>
-                            <td>{{ team_stats.losses }}</td>
-                            <td>
-                                {% if team_stats.losses != 0 %}
-                                    {{ (team_stats.wins / team_stats.losses) | round(2)  }}
-                                {% else %}
-                                    {{ team_stats.wins}}
-                                {% endif %}                            
-                            </td>
-                            <td>
-                                {{ (team_stats.wins / (team_stats.wins + team_stats.losses) * 100) | round | int}}%
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+    {% set stats=all_stats.playerStats %}
+    {% include 'leaderboard/player_stats.html' %}
 
-        <div class="table-card">
-            <h3>Beans</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Players</th>
-                        <th>Beans</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for team, team_stats in stats.teamBeans %}
-                        <tr>
-                            <td class="player-cell">{{ team }}</td>
-                            <td>{{ team_stats.beans }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+    <div class="table-card">
+        <h3>Top Teams</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Players</th>
+                    <th>Wins</th>
+                    <th>Losses</th>
+                    <th>W/L</th>
+                    <th>Win Rate</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for team, team_stats in all_stats.teamStats %}
+                <tr>
+                    <td class="player-cell">{{ team[0] }} - {{ team[1] }}</td>
+                    <td>{{ team_stats.wins }}</td>
+                    <td>{{ team_stats.losses }}</td>
+                    <td>
+                        {% if team_stats.losses != 0 %}
+                        {{ (team_stats.wins / team_stats.losses) | round(2) }}
+                        {% else %}
+                        {{ team_stats.wins}}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {{ (team_stats.wins / (team_stats.wins + team_stats.losses) * 100) | round | int}}%
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
-        <div class="table-card">
-            <h3>Red Vs Black</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Team</th>
-                        <th>Wins</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for team, wins in stats.redVsBlack %}
-                        <tr>
-                            <td>{{ team }}</td>
-                            <td>{{ wins }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+    <div class="table-card">
+        <h3>Beans</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Players</th>
+                    <th>Beans</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for team, team_stats in all_stats.teamBeans %}
+                <tr>
+                    <td class="player-cell">{{ team }}</td>
+                    <td>{{ team_stats.beans }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
-        <div class="table-card">
-            <h3>Shortest Game</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Red Team</th>
-                        <th>Black Team</th>
-                        <th>Score</th>
-                        <th>Length</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for team_stats in stats.shortestGame %}
-                    <tr>
-                        <td class="player-cell">{{ team_stats[0] }}</td>
-                        <td class="player-cell">{{ team_stats[1] }}</td>
-                        <td>{{ team_stats[2] }}</td>
-                        <td>{{ team_stats[3] }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+    <div class="table-card">
+        <h3>Red Vs Black</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Team</th>
+                    <th>Wins</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for team, wins in all_stats.redVsBlack %}
+                <tr>
+                    <td>{{ team }}</td>
+                    <td>{{ wins }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
-        <div class="table-card">
-            <h3>Game History</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Red Team</th>
-                        <th>Black Team</th>
-                        <th>Length</th>
-                        <th>Score</th>
-                        <th>Finish Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for team_stats in stats.recentGameHistory %}
-                    <tr>
-                        <td class="player-cell">{{ team_stats[0] }}</td>
-                        <td class="player-cell">{{ team_stats[1] }}</td>
-                        <td>{{ team_stats[2] }}</td>
-                        <td>{{ team_stats[3] }}</td>
-                        <td>{{ team_stats[4] }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </main>
+    <div class="table-card">
+        <h3>Shortest Game</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Red Team</th>
+                    <th>Black Team</th>
+                    <th>Score</th>
+                    <th>Length</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for team_stats in all_stats.shortestGame %}
+                <tr>
+                    <td class="player-cell">{{ team_stats[0] }}</td>
+                    <td class="player-cell">{{ team_stats[1] }}</td>
+                    <td>{{ team_stats[2] }}</td>
+                    <td>{{ team_stats[3] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="table-card">
+        <h3>Game History</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Red Team</th>
+                    <th>Black Team</th>
+                    <th>Length</th>
+                    <th>Score</th>
+                    <th>Finish Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for team_stats in all_stats.recentGameHistory %}
+                <tr>
+                    <td class="player-cell">{{ team_stats[0] }}</td>
+                    <td class="player-cell">{{ team_stats[1] }}</td>
+                    <td>{{ team_stats[2] }}</td>
+                    <td>{{ team_stats[3] }}</td>
+                    <td>{{ team_stats[4] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</main>
 {% endblock %}
+
 </html>
