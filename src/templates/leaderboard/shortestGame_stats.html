@@ -1,0 +1,14 @@
+<!-- shortestGame_stats.html -->
+
+{% extends 'base.html' %}
+{% block title %}Shortest Game{% endblock %}
+
+{% block styles %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/leaderboardStyles.css') }}">
+{% endblock %}
+
+{% block content %}
+    <!-- TODO: add back button -->
+    {% include 'leaderboard/shortestGame_stats_section.html' %}
+{% endblock %}
+

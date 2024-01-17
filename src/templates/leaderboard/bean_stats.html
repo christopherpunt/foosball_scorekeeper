@@ -1,0 +1,14 @@
+<!-- bean_stats.html -->
+
+{% extends 'base.html' %}
+{% block title %}Bean Stats{% endblock %}
+
+{% block styles %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/leaderboardStyles.css') }}">
+{% endblock %}
+
+{% block content %}
+    <!-- TODO: add back button -->
+    {% include 'leaderboard/bean_stats_section.html' %}
+{% endblock %}
+

@@ -45,6 +45,21 @@ def teamStats():
     stats = leaderboardStats.getTeamStats()
     return render_template('leaderboard/team_stats.html', stats=stats)
 
+@app.route('/leaderboard/shortestGame_stats')
+def shortestGame():
+    stats = leaderboardStats.getShortestGames()
+    return render_template('leaderboard/shortestGame_stats.html', stats=stats)
+
+@app.route('/leaderboard/gameHistory_stats')
+def gameHistory():
+    stats = leaderboardStats.getRecentGameHistory()
+    return render_template('leaderboard/gameHistory_stats.html', stats=stats)
+
+@app.route('/leaderboard/bean_stats')
+def teamBeans():
+    stats = leaderboardStats.getTeamBeans()
+    return render_template('leaderboard/bean_stats.html', stats=stats)
+
 @app.route('/players')
 def getAllPlayers():
     return render_template('/players.html', players=playerManager.getAllPlayers())

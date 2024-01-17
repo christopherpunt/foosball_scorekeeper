@@ -13,7 +13,7 @@ class LeaderboardStats:
             'teamStats': self.getTeamStats()[:Configuration.leaderboardStatsCount],
             'teamBeans': self.getTeamBeans()[:Configuration.leaderboardStatsCount],
             'redVsBlack': self.getRedVsBlack(),
-            'shortestGame': self.getShortestGames()[:Configuration.leaderboardStatsCount],
+            'shortestGames': self.getShortestGames()[:Configuration.leaderboardStatsCount],
             'recentGameHistory': self.getRecentGameHistory()[:Configuration.leaderboardStatsCount]
         }
 
