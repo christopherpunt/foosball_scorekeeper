@@ -52,11 +52,18 @@ def game_page():
 def start_game():
     json = requestToJson(request)
     ledStripService.gameStarted()
-    return gameManager.startGame(json.get('RED'), json.get('BLACK'))
-
+    result = gameManager.startGame(json.get('RED'), json.get('BLACK'))
+    if result:
+        return jsonify({'success': True})
+    return jsonify({'success': False, 'message': f'Could not start game'})
 @app.route('/add_user', methods=['POST'])
 def addUser():
-    return playerManager.addNewPlayer(request)
+    json = requestToJson(request)
+    result = playerManager.addNewPlayer(json.get('newUser', ''))
+    if result:
+        return jsonify({'success': True})
+    return jsonify({'success': False, 'message': f'Could not add player'})
+
 
 @app.route('/add_score', methods=['POST'])
 def addScore():
@@ -68,8 +75,10 @@ def addScore():
             ledStripService.gameCompleted(gameManager.currentGame.winningTeam)
         else:
             ledStripService.goalScored(team_value)
-
-        return returnValue
+        if returnValue:
+            return jsonify({'success': True})
+        else:
+            return jsonify({'success': False, 'message': f'could not add score.'})
     return jsonify({'success': False, 'message': f'Game not started could not add score.'})
 
 # the goal counters / controllers need to register first before we can start a game

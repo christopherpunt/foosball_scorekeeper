@@ -1,5 +1,4 @@
 from configuration import Configuration
-from flask import jsonify
 from enum import Enum
 from tinydb import TinyDB, Query
 from datetime import datetime
@@ -22,37 +21,41 @@ class FoosballGame:
         self.isFinished = False
         self.startTime = datetime.now().strftime(Configuration.dateFormat)
 
-        self._db = TinyDB(Configuration.foosballGamesDatabase, indent=2)
+        self._db = TinyDB(Configuration.foosballGamesDatabase, indent=2, create_dirs=True)
 
     def addScore(self, team):
         if self.isFinished:
             print('game already finished, cannot change score')
-            return jsonify({'success': False, 'message': 'game already finished, cannot change score'})
+            return False
 
         scoreAdded = False
         if (team == TeamEnum.BLACK.name) and self.blackTeamScore < Configuration.gameWinningAmount:
             self.blackTeamScore += 1
             scoreAdded = True
-            return jsonify({'success': True})
+            return True
         elif (team == TeamEnum.RED.name) and self.redTeamScore < Configuration.gameWinningAmount:
             self.redTeamScore += 1
-            return jsonify({'success': True})    
+            scoreAdded = True
         
         if not scoreAdded:
             print(f'score for {team} could not be added')
-            return jsonify({'success': False, 'message': f'could not add score for {team}'})
+            
+        return scoreAdded
     
     def removeScore(self, team):
         if (team == TeamEnum.BLACK.name) and self.blackTeamScore > 0:
             self.blackTeamScore -= 1
             if self.isFinished:
                 self.isFinished = False
+            return True
         elif (team == TeamEnum.RED.name) and self.redTeamScore > 0:
             self.redTeamScore -= 1      
             if self.isFinished:
                 self.isFinished = False
-        else:
-            print(f'could not remove score from {team}')
+            return True
+        
+        print(f'could not remove score from {team}')
+        return False
 
     def isGameFinished(self):
         if self.blackTeamScore >= Configuration.gameWinningAmount:
@@ -88,9 +91,9 @@ class FoosballGameManager:
                 blackPlayer2 = blackSelectedPlayers[1] if len(blackSelectedPlayers) == 2 else None
 
                 self.currentGame = FoosballGame(redPlayer1=redPlayer1, blackPlayer1=blackPlayer1, redPlayer2=redPlayer2, blackPlayer2=blackPlayer2)
-                return jsonify({'success': True, 'message': 'Game Started'})
+                return True
 
-        return jsonify({'success': False, 'message': 'Could not start game, teams not ready or players not unique'})
+        return False
 
     def updateCurrentGameData(self):
         if self.currentGame is not None:
