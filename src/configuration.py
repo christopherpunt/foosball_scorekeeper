@@ -8,3 +8,4 @@ class Configuration:
     dateFormat = '%m/%d/%Y, %I:%M:%S %p'
     foosballGamesDatabase = 'instance/FoosballGames.json'
     playersDatabase = 'instance/players.json'
+    leaderboardStatsCount = 10

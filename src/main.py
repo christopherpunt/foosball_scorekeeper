@@ -27,8 +27,43 @@ def requestToJson(request):
 
 @app.route('/')
 def index():
-    stats = leaderboardStats.getStats()
-    return render_template('leaderboard.html', stats=stats)
+    stats = leaderboardStats.getAllStats()
+    return render_template('leaderboard.html', all_stats=stats)
+
+@app.route('/leaderboard')
+def getLeaderboardStats():
+    stats = leaderboardStats.getAllStats()
+    return render_template('leaderboard.html', all_stats=stats)
+
+@app.route('/leaderboard/player_stats')
+def playerStats():
+    stats = leaderboardStats.getPlayerStats()
+    return render_template('leaderboard/player_stats.html', stats=stats)
+
+@app.route('/leaderboard/team_stats')
+def teamStats():
+    stats = leaderboardStats.getTeamStats()
+    return render_template('leaderboard/team_stats.html', stats=stats)
+
+@app.route('/leaderboard/shortestGame_stats')
+def shortestGame():
+    stats = leaderboardStats.getShortestGames()
+    return render_template('leaderboard/shortestGame_stats.html', stats=stats)
+
+@app.route('/leaderboard/gameHistory_stats')
+def gameHistory():
+    stats = leaderboardStats.getRecentGameHistory()
+    return render_template('leaderboard/gameHistory_stats.html', stats=stats)
+
+@app.route('/leaderboard/bean_stats')
+def teamBeans():
+    stats = leaderboardStats.getTeamBeans()
+    return render_template('leaderboard/bean_stats.html', stats=stats)
+
+@app.route('/hiddenStats')
+def hiddenStats():
+    stats = leaderboardStats.getHiddenStats()
+    return render_template('hiddenStats.html', hiddenStats=stats)
 
 @app.route('/players')
 def getAllPlayers():

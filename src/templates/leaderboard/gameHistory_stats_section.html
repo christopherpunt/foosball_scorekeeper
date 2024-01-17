@@ -1,0 +1,28 @@
+<!-- gameHistory_stats_section.html -->
+
+
+<a href="/leaderboard/gameHistory_stats" class="table-card">
+    <h3>Game History</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Red Team</th>
+                <th>Black Team</th>
+                <th>Length</th>
+                <th>Score</th>
+                <th>Finish Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for team_stats in stats %}
+            <tr>
+                <td class="same_line">{{ team_stats[0] }}</td>
+                <td class="same_line">{{ team_stats[1] }}</td>
+                <td>{{ team_stats[2] }}</td>
+                <td>{{ team_stats[3] }}</td>
+                <td class="same_line">{{ team_stats[4] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</a>

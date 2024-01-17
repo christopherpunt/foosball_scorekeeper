@@ -1,23 +1,27 @@
 from tinydb import TinyDB, Query
 from collections import defaultdict
-from datetime import datetime
+from datetime import datetime, timedelta
 from configuration import Configuration
 
 class LeaderboardStats:
     def __init__(self) -> None:
         self._db = TinyDB(Configuration.foosballGamesDatabase)
-
-    def getStats(self):
-        self.updateStats()
-        return {key: value for key, value in vars(self).items() if not key.startswith('_')}
-
-    def updateStats(self):
-        self.playerStats = self.getPlayerStats()
-        self.teamStats = self.getTeamStats()
-        self.teamBeans = self.getTeamBeans()
-        self.redVsBlack = self.getRedVsBlack()
-        self.shortestGame = self.getShortestGames()
-        self.recentGameHistory = self.getRecentGameHistory()
+        
+    def getAllStats(self):
+        return {
+            'playerStats': self.getPlayerStats()[:Configuration.leaderboardStatsCount],
+            'teamStats': self.getTeamStats()[:Configuration.leaderboardStatsCount],
+            'teamBeans': self.getTeamBeans()[:Configuration.leaderboardStatsCount],
+            'redVsBlack': self.getRedVsBlack(),
+            'shortestGames': self.getShortestGames()[:Configuration.leaderboardStatsCount],
+            'recentGameHistory': self.getRecentGameHistory()[:Configuration.leaderboardStatsCount]
+        }
+    
+    def getHiddenStats(self):
+        return {
+            'playerWastedTime': self.getPlayerWastedTime(),
+            'totalGames': self.getTotalGameTime()
+        }
 
     def getPlayerStats(self):
         # Fetch data from the TinyDB
@@ -37,14 +41,19 @@ class LeaderboardStats:
         for player in set(players_data):
             wins = sum(1 for game in data if player in [game['redPlayer1'], game.get('redPlayer2', "")] and game['winningTeam'] == 'RED')
             wins += sum(1 for game in data if player in [game['blackPlayer1'], game.get('blackPlayer2', "")] and game['winningTeam'] == 'BLACK')
+
             losses = sum(1 for game in data if player in [game['redPlayer1'], game.get('redPlayer2', "")] and game['winningTeam'] == 'BLACK')
             losses += sum(1 for game in data if player in [game['blackPlayer1'], game.get('blackPlayer2', "")] and game['winningTeam'] == 'RED')
+
+            beans = sum(1 for game in data if player in [game['redPlayer1'], game.get('redPlayer2', "")] and game['winningTeam'] == 'BLACK' and game['redTeamScore'] == 0)
+            beans += sum(1 for game in data if player in [game['blackPlayer1'], game.get('blackPlayer2', "")] and game['winningTeam'] == 'RED' and game['blackTeamScore'] == 0)
+
             if player is not None:
-                player_stats[player] = {'wins': wins, 'losses': losses}
+                player_stats[player] = {'wins': wins, 'losses': losses, 'beans': beans}
 
         # Sort players first by win ratio wins/losses but if losses is 0 then ratio is 0, then by win rate (wins/ (wins + losses)), there should always be at least 1 win or loss, so no need to check divide by 0
         sortedTeams = sorted(player_stats.items(), key=lambda x: ((x[1]['wins'] /  x[1]['losses']) if x[1]['losses'] != 0 else x[1]['wins'], x[1]['wins'] / (x[1]['wins'] + x[1]['losses'])), reverse=True)
-        return sortedTeams[:10]
+        return sortedTeams
 
     def getTeamStats(self):
         # Initialize a defaultdict to store team statistics
@@ -71,7 +80,7 @@ class LeaderboardStats:
         sorted_teams = sorted(team_stats.items(), key=lambda x: ((x[1]['wins'] /  x[1]['losses']) if x[1]['losses'] != 0 else x[1]['wins'], x[1]['wins'] / (x[1]['wins'] + x[1]['losses'])), reverse=True)
 
         #only return the top ten
-        return sorted_teams[:10]
+        return sorted_teams
     
     def getTeamBeans(self):
         # Initialize a defaultdict to store team statistics
@@ -136,7 +145,7 @@ class LeaderboardStats:
 
                 game_stats.append((redTeamString, blackTeamString, scoreString, duration))
 
-        return sorted(game_stats, key=lambda x: (x[3]))[:10]
+        return sorted(game_stats, key=lambda x: (x[3]))
     
     def getRecentGameHistory(self):
         game_stats = []
@@ -163,4 +172,44 @@ class LeaderboardStats:
 
                 game_stats.append((redTeamString, blackTeamString, duration, score_string, finish_date))
 
-        return sorted(game_stats, key=lambda x: datetime.strptime(x[4], Configuration.dateFormat), reverse=True)[:10]
+        return sorted(game_stats, key=lambda x: datetime.strptime(x[4], Configuration.dateFormat), reverse=True)
+
+    def getPlayerWastedTime(self):
+        # Fetch data from the TinyDB
+        data = self._db.table('_default').all()
+
+        # Process data to extract relevant information
+        # You can modify this part based on your specific requirements
+        players_data = []
+        for game_id, game_info in enumerate(data, start=1):
+            red_team = [game_info['redPlayer1'], game_info.get('redPlayer2', "")]
+            black_team = [game_info['blackPlayer1'], game_info.get('blackPlayer2', "")]
+
+            players_data.extend(red_team + black_team)
+
+        # Calculate wins and losses for each player
+        player_stats = {}
+        for player in set(players_data):
+            numGames = 0
+            duration = timedelta(seconds=0)
+            for game in data:
+                if player in [game['redPlayer1'], game.get('redPlayer2', ""), game['blackPlayer1'], game.get('blackPlayer2', "")]:
+                    numGames += 1
+                    duration += datetime.strptime(game['finishTime'], Configuration.dateFormat) - datetime.strptime(game['startTime'], Configuration.dateFormat)
+
+            if player is not None and player is not "":
+                player_stats[player] = {'numGames': numGames, 'totalTime': duration}
+
+        # Sort players first by win ratio wins/losses but if losses is 0 then ratio is 0, then by win rate (wins/ (wins + losses)), there should always be at least 1 win or loss, so no need to check divide by 0
+        sortedTeams = sorted(player_stats.items(), key=lambda x: (x[1]['numGames']), reverse=True)
+        return sortedTeams
+    
+    def getTotalGameTime(self):
+        data = self._db.table('_default').all()
+        duration = timedelta(seconds=0)
+        numGames = 0
+
+        for game in data:
+            duration += datetime.strptime(game['finishTime'], Configuration.dateFormat) - datetime.strptime(game['startTime'], Configuration.dateFormat)
+            numGames += 1
+        return (numGames, duration)

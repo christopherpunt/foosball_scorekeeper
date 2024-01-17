@@ -1,0 +1,15 @@
+<!-- player_stats.html -->
+
+{% extends 'base.html' %}
+{% block title %}Player Stats{% endblock %}
+
+{% block styles %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/leaderboardStyles.css') }}">
+{% endblock %}
+
+{% block content %}
+    <!-- TODO: add back button -->
+
+    {% include 'leaderboard/player_stats_section.html' %}
+{% endblock %}
+

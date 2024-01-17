@@ -1,0 +1,26 @@
+<!-- shortestGame_stats_section.html -->
+
+
+<a href="/leaderboard/shortestGame_stats" class="table-card">
+    <h3>Shortest Game</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Red Team</th>
+                <th>Black Team</th>
+                <th>Score</th>
+                <th>Length</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for team_stats in stats%}
+            <tr>
+                <td class="same_line">{{ team_stats[0] }}</td>
+                <td class="same_line">{{ team_stats[1] }}</td>
+                <td>{{ team_stats[2] }}</td>
+                <td>{{ team_stats[3] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</a>

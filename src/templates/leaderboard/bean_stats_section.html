@@ -1,0 +1,22 @@
+<!-- bean_stats_section.html -->
+
+
+<a href="/leaderboard/bean_stats" class="table-card">
+    <h3>Beans</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Team</th>
+                <th>Beans</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for team, team_stats in stats %}
+            <tr>
+                <td class="same_line">{{ team }}</td>
+                <td>{{ team_stats.beans }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</a>
