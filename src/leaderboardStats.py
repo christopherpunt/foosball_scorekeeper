@@ -6,18 +6,16 @@ from configuration import Configuration
 class LeaderboardStats:
     def __init__(self) -> None:
         self._db = TinyDB(Configuration.foosballGamesDatabase)
-
-    def getStats(self):
-        self.updateStats()
-        return {key: value for key, value in vars(self).items() if not key.startswith('_')}
-
-    def updateStats(self):
-        self.playerStats = self.getPlayerStats()
-        self.teamStats = self.getTeamStats()
-        self.teamBeans = self.getTeamBeans()
-        self.redVsBlack = self.getRedVsBlack()
-        self.shortestGame = self.getShortestGames()
-        self.recentGameHistory = self.getRecentGameHistory()
+        
+    def getAllStats(self):
+        return {
+            'playerStats': self.getPlayerStats()[:Configuration.leaderboardStatsCount],
+            'teamStats': self.getTeamStats()[:Configuration.leaderboardStatsCount],
+            'teamBeans': self.getTeamBeans()[:Configuration.leaderboardStatsCount],
+            'redVsBlack': self.getRedVsBlack(),
+            'shortestGame': self.getShortestGames()[:Configuration.leaderboardStatsCount],
+            'recentGameHistory': self.getRecentGameHistory()[:Configuration.leaderboardStatsCount]
+        }
 
     def getPlayerStats(self):
         # Fetch data from the TinyDB
@@ -44,7 +42,7 @@ class LeaderboardStats:
 
         # Sort players first by win ratio wins/losses but if losses is 0 then ratio is 0, then by win rate (wins/ (wins + losses)), there should always be at least 1 win or loss, so no need to check divide by 0
         sortedTeams = sorted(player_stats.items(), key=lambda x: ((x[1]['wins'] /  x[1]['losses']) if x[1]['losses'] != 0 else x[1]['wins'], x[1]['wins'] / (x[1]['wins'] + x[1]['losses'])), reverse=True)
-        return sortedTeams[:10]
+        return sortedTeams
 
     def getTeamStats(self):
         # Initialize a defaultdict to store team statistics
@@ -71,7 +69,7 @@ class LeaderboardStats:
         sorted_teams = sorted(team_stats.items(), key=lambda x: ((x[1]['wins'] /  x[1]['losses']) if x[1]['losses'] != 0 else x[1]['wins'], x[1]['wins'] / (x[1]['wins'] + x[1]['losses'])), reverse=True)
 
         #only return the top ten
-        return sorted_teams[:10]
+        return sorted_teams
     
     def getTeamBeans(self):
         # Initialize a defaultdict to store team statistics
@@ -136,7 +134,7 @@ class LeaderboardStats:
 
                 game_stats.append((redTeamString, blackTeamString, scoreString, duration))
 
-        return sorted(game_stats, key=lambda x: (x[3]))[:10]
+        return sorted(game_stats, key=lambda x: (x[3]))
     
     def getRecentGameHistory(self):
         game_stats = []
@@ -163,4 +161,4 @@ class LeaderboardStats:
 
                 game_stats.append((redTeamString, blackTeamString, duration, score_string, finish_date))
 
-        return sorted(game_stats, key=lambda x: datetime.strptime(x[4], Configuration.dateFormat), reverse=True)[:10]
+        return sorted(game_stats, key=lambda x: datetime.strptime(x[4], Configuration.dateFormat), reverse=True)

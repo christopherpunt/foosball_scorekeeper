@@ -27,12 +27,12 @@ def requestToJson(request):
 
 @app.route('/')
 def index():
-    stats = leaderboardStats.getStats()
+    stats = leaderboardStats.getAllStats()
     return render_template('leaderboard.html', all_stats=stats)
 
 @app.route('/leaderboard')
-def getLeaderBoardStats():
-    stats = leaderboardStats.getStats()
+def getLeaderboardStats():
+    stats = leaderboardStats.getAllStats()
     return render_template('leaderboard.html', all_stats=stats)
 
 @app.route('/leaderboard/playerStats')

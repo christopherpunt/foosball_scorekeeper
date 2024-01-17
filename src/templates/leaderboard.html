@@ -10,11 +10,9 @@
 
 {% block content %}
 <main>
-    <!-- set include navbar to false so that the sections wont also put in the nav bar -->
-    {% set includeNavBar=false %}
 
     {% set stats=all_stats.playerStats %}
-    {% include 'leaderboard/player_stats.html' %}
+    {% include 'leaderboard/player_stats_section.html' %}
 
     <div class="table-card">
         <h3>Top Teams</h3>
