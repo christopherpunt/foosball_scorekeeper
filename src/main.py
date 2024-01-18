@@ -92,6 +92,7 @@ def start_game():
     if result:
         return jsonify({'success': True})
     return jsonify({'success': False, 'message': f'Could not start game'})
+
 @app.route('/add_user', methods=['POST'])
 def addUser():
     json = requestToJson(request)
@@ -99,7 +100,6 @@ def addUser():
     if result:
         return jsonify({'success': True})
     return jsonify({'success': False, 'message': f'Could not add player'})
-
 
 @app.route('/add_score', methods=['POST'])
 def addScore():

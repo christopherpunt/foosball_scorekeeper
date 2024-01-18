@@ -272,6 +272,7 @@
     function switchSides() {
         const popup = document.getElementById('winningPopup');
         popup.style.display = 'none';
+        gameStartTime = null
 
         socket.emit('switch_sides');
     }
@@ -279,6 +280,7 @@
     function confirmGameCompleted() {
         const popup = document.getElementById('winningPopup');
         popup.style.display = 'none';
+        gameStartTime = null
 
         socket.emit('game_completed')
         window.location.pathname = ("/")
