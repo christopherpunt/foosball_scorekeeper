@@ -200,6 +200,7 @@
 <script>
     const socket = io.connect('http://' + document.domain + ':' + location.port + '/');
     let gameStartTime;
+    let ClientServerOffsetTime;
 
     socket.on('connect', function() {
         console.log('Socket connected');
@@ -230,6 +231,12 @@
         if (data.isFinished){
             displayWinningPopup(data.winningTeam);
         }
+    });
+
+    socket.on('server_time', function(data) {
+        serverTime = new Date(data.server_time).getTime();
+        clientTime = new Date().getTime();
+        ClientServerOffsetTime = serverTime - clientTime
     });
 
     function changeScore(team, action) {
@@ -279,7 +286,8 @@
 
     function updateTimer() {
         if (gameStartTime) {
-            const currentTime = new Date().getTime();
+            // Use the ClientServerOffsetTime to calculate the elapsed seconds
+            const currentTime = new Date().getTime() + ClientServerOffsetTime;
             const elapsedSeconds = Math.floor((currentTime - gameStartTime) / 1000);
 
             const timerElement = document.getElementById('timer');

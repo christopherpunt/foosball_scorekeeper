@@ -5,6 +5,7 @@ from foosballGame import FoosballGameManager
 from player import PlayerManager
 from leaderboardStats import LeaderboardStats
 from ledStripService import LedStripService
+from datetime import datetime
 import json
 app = Flask(__name__)
 socketio = SocketIO(app)
@@ -144,6 +145,11 @@ def handlePing():
 
 @socketio.on('get_initial_data')
 def handle_get_initial_data():
+    # Get the current server time
+    server_time = datetime.now().isoformat()
+
+    # Emit the server time to the client
+    socketio.emit('server_time', {'server_time': server_time})
     gameManager.updateCurrentGameData()
 
 @socketio.on('change_score')
