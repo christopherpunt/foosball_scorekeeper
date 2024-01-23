@@ -21,6 +21,8 @@ playerManager = PlayerManager(socketio)
 leaderboardStats = LeaderboardStats()
 ledStripService = LedStripService(ledStripControllerUrl)
 
+gameStartedBy = None
+
 def requestToJson(request):
     raw_data = request.data
     data_str = raw_data.decode('utf-8')
@@ -86,12 +88,21 @@ def game_page():
 
 @app.route('/start_game', methods=['POST'])
 def start_game():
+    global gameStartedBy
+    gameStartedBy = request.remote_addr
     json = requestToJson(request)
     ledStripService.gameStarted()
     result = gameManager.startGame(json.get('RED'), json.get('BLACK'))
     if result:
         return jsonify({'success': True})
     return jsonify({'success': False, 'message': f'Could not start game'})
+
+
+@app.route('/reset_game', methods=['POST'])
+def reset_game():
+    gameManager.currentGame = None
+    return joinGame()
+
 
 @app.route('/add_user', methods=['POST'])
 def addUser():
@@ -161,13 +172,16 @@ def handle_change_score(data):
         team = data['team']
         action = data['action']
 
-        if action == 'minus':
-            gameManager.currentGame.removeScore(team.upper())
-        elif action == 'plus':
-            gameManager.currentGame.addScore(team.upper())
+        if gameStartedBy == request.remote_addr:
+            if action == 'minus':
+                gameManager.currentGame.removeScore(team.upper())
+            elif action == 'plus':
+                gameManager.currentGame.addScore(team.upper())
+            else:
+                print('incorrect action')
+            gameManager.updateCurrentGameData()
         else:
-            print('incorrect action')
-        gameManager.updateCurrentGameData()
+            print(f"{request.remote_addr} tried to change the score")
 
 @socketio.on('switch_sides')
 def handle_switch_sides():
