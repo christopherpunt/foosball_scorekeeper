@@ -16,12 +16,9 @@
             text-align: center;
         }
 
-        #lightsFormOn,
-        #lightsFormOff {
-            margin-top: 20px;
-        }
-
         input[type="submit"] {
+            margin-top: 20px;
+
             padding: 50px; /* Increase padding for a bigger button */
             font-size: 50px;
             cursor: pointer;
@@ -38,6 +35,14 @@
             background-color: #ff5555; /* Red for "Off" button */
             color: #fff;
         }
+
+        #resetGame input[type="submit"] {
+            padding: 20px;
+            margin-top: 200px;
+            font-size: 30px;
+            background-color: #2f9ef8;
+            color: #fff;
+        }
     </style>
 {% endblock %}
 
@@ -49,5 +54,9 @@
 
     <form id="lightsFormOff" action="/lights_off" method="post">
         <input type="submit" name="lightsOff" value="Turn lights off" />
+    </form>
+
+    <form id="resetGame" action="/reset_game" method="post">
+        <input type="submit" name="reset_game" value="Actually Reset Game" />
     </form>
 {% endblock %}
