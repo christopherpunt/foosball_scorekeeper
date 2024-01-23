@@ -91,6 +91,8 @@ class FoosballGameManager:
                 blackPlayer2 = blackSelectedPlayers[1] if len(blackSelectedPlayers) == 2 else None
 
                 self.currentGame = FoosballGame(redPlayer1=redPlayer1, blackPlayer1=blackPlayer1, redPlayer2=redPlayer2, blackPlayer2=blackPlayer2)
+                self.socketio.emit('game_started')
+
                 return True
 
         return False

@@ -83,7 +83,8 @@ def settings():
 @app.route('/game_page')
 def game_page():
     if gameManager.currentGame is not None:
-        return render_template('game_page.html')
+        remoteAddrStartedGame = request.remote_addr == gameStartedBy if gameStartedBy is not None else False
+        return render_template('game_page.html', remoteAddrStartedGame=remoteAddrStartedGame)
     return joinGame()
 
 @app.route('/start_game', methods=['POST'])

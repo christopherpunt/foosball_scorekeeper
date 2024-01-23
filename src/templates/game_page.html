@@ -149,10 +149,13 @@
         <h3 class="red">Red Team</h3>
         <div class="score-card" id="redScoreCard">
             <p class="score"><span id="redScore"></span></p>
-            <div class="score-buttons">
-                <button class="minus" onclick="changeScore('red', 'minus')">-</button>
-                <button class="plus" onclick="changeScore('red', 'plus')">+</button>
-            </div>
+            {% if remoteAddrStartedGame %}
+                <div class="score-buttons">
+                    <button class="minus" onclick="changeScore('red', 'minus')">-</button>
+                    <button class="plus" onclick="changeScore('red', 'plus')">+</button>
+                </div>
+            {% endif %}
+
         </div>
         <div>
             <span class="player-name" id="redPlayer1"></span>
@@ -166,10 +169,13 @@
         <h3 class="black">Black Team</h3>
         <div class="score-card" id="blackScoreCard">
             <p class="score"><span id="blackScore"></span></p>
-            <div class="score-buttons">
-                <button class="minus" onclick="changeScore('black', 'minus')">-</button>
-                <button class="plus" onclick="changeScore('black', 'plus')">+</button>
-            </div>
+            {% if remoteAddrStartedGame %}
+                <div class="score-buttons">
+                    <button class="minus" onclick="changeScore('black', 'minus')">-</button>
+                    <button class="plus" onclick="changeScore('black', 'plus')">+</button>
+                </div>
+            {% endif %}
+
         </div>
         <div>
             <span class="player-name" id="blackPlayer1"></span>
@@ -185,11 +191,13 @@
         <h3 id="winningTeamText"></h3>
         <div class="popup-content-inner">
             <img src="/static/img/bean-dance.gif" alt="Dancing Bean" id="winningImage" class="popup-image">
-            <div class="winningButtons">
-                <button onclick="closePopup()">Fix Score</button>
-                <button onclick="switchSides()">Switch Sides</button>
-                <button onclick="confirmGameCompleted()">Game Completed</button>
-            </div>
+            {% if remoteAddrStartedGame %}
+                <div class="winningButtons">
+                    <button onclick="closePopup()">Fix Score</button>
+                    <button onclick="switchSides()">Switch Sides</button>
+                    <button onclick="confirmGameCompleted()">Game Completed</button>
+                </div>
+            {% endif %}
         </div>
     </div>
 </div>
@@ -229,8 +237,14 @@
         setInterval(updateTimer, 1000);
 
         if (data.isFinished){
+            gameStartTime = null
             displayWinningPopup(data.winningTeam);
         }
+    });
+
+    socket.on('game_started', function() {
+        gameStartTime = null
+        closePopup()
     });
 
     socket.on('server_time', function(data) {
