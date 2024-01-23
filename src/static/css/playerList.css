@@ -1,0 +1,34 @@
+.player-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    columns: 2;
+}
+.player-item {
+    font-size: 40px;
+    cursor: pointer;
+
+    padding: 5px;
+    border: 1px solid #ddd;
+    margin-bottom: 2px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f9f9f9;
+    break-inside: avoid-column; /* Prevent player items from breaking across columns */
+}
+
+.player-item:hover {
+    background-color: #dbf0ff;
+}
+
+.player-item.selected {
+    background-color: #269bda;
+}
+.player-item.notAvailable {
+    background-color: #fd6c6c;
+    color: #888;
+    cursor: not-allowed;
+    pointer-events: none;
+}

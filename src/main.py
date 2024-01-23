@@ -140,8 +140,11 @@ def handlePing():
     json = requestToJson(request)
     if 'averageValue' in json and 'team' in json:
         print(f"team: {json.get('team')} has averageValue: {json.get('averageValue')}")
-
     return jsonify({'success': True})
+
+@app.route('/create_tournament')
+def createTournament():
+    return render_template('tournament.html', players=playerManager.getAllPlayers())
 
 @socketio.on('get_initial_data')
 def handle_get_initial_data():

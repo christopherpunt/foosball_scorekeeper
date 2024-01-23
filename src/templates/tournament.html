@@ -1,0 +1,142 @@
+<!-- players.html -->
+
+{% extends 'base.html' %}
+
+{% block title %}Players List{% endblock %}
+
+{% block styles %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/playerList.css') }}">
+
+<style>
+    .player-list {
+        columns: 4;
+    }
+
+    .container {
+        min-width: 500px;
+        width: 90%;
+        margin: 5px auto;
+    }
+
+    h2 {
+        text-align: center;
+        color: #337ab7;
+    }
+
+    .card {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        padding: 5px;
+        margin-bottom: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-card {
+        margin: 5px auto;
+        width: 20%;
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        padding: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    input {
+        width: calc(100% - 22px);
+        padding: 10px;
+        box-sizing: border-box;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 50px;
+    }
+
+    button:hover {
+        background-color: #23527c;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h2>Select Tournament Players</h2>
+
+<div class="container">
+    <div class="card">
+        <ul class="player-list">
+            {% for player in players %}
+                <li class="player-item">
+                    {{ player['username'] }}
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+<div class="card form-card">
+    <form id="add-user-form" onsubmit="addUser()">
+        <div class="form-group">
+            <label for="new-username">New Username:</label>
+            <input type="text" id="new-username" name="new-username" required autofocus>
+        </div>
+    
+        <button type="submit">Add User</button>
+    </form>
+</div>
+
+<script>
+    const selectedPlayers = []
+    document.querySelectorAll('.player-item').forEach(item => {
+        item.addEventListener('click', () => handlePlayerSelection(item));
+    });
+
+    function handlePlayerSelection(element) {
+        const playerName = element.dataset.player;
+        const selected = element.classList.contains('selected');
+
+        if (selected) {
+            // Deselect player
+            element.classList.remove('selected');
+            const index = selectedPlayers.indexOf(playerName);
+
+            const x = selectedPlayers.splice(index, 1);
+        } else {
+            // Select player
+            element.classList.add('selected');
+            selectedPlayers.push(playerName);
+        }
+
+        console.log(`selected players ${JSON.stringify(selectedPlayers)}`)
+    }
+
+
+    function addUser() {
+        const newUsernameInput = document.getElementById('new-username');
+        const newUsername = newUsernameInput.value;
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', '/add_user', true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                const response = JSON.parse(xhr.responseText);
+                if (response.success) {
+                    newUsernameInput.value = '';
+                    location.reload();
+                } else {
+                    alert(`Failed to join the game. ${response.message}`);
+                }
+            }
+        };
+
+        const data = JSON.stringify({ newUser: newUsername });
+        xhr.send(data);
+    }
+</script>
+
+{% endblock %}
+</html>
