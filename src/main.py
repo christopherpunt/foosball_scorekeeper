@@ -5,6 +5,7 @@ from foosballGame import FoosballGameManager
 from player import PlayerManager
 from leaderboardStats import LeaderboardStats
 from ledStripService import LedStripService
+from tournament import TournamentManager
 from datetime import datetime
 import json
 app = Flask(__name__)
@@ -20,6 +21,7 @@ gameManager = FoosballGameManager(socketio)
 playerManager = PlayerManager(socketio)
 leaderboardStats = LeaderboardStats()
 ledStripService = LedStripService(ledStripControllerUrl)
+tournamentManager = TournamentManager()
 
 gameStartedBy = None
 
@@ -153,9 +155,24 @@ def handlePing():
         print(f"team: {json.get('team')} has averageValue: {json.get('averageValue')}")
     return jsonify({'success': True})
 
+@app.route('/tournament')
+def tournament():
+    return render_template('tournament.html', teams=tournamentManager.currentTournament.teams)
+
 @app.route('/create_tournament')
 def createTournament():
-    return render_template('tournament.html', players=playerManager.getAllPlayers())
+    return render_template('new_tournament.html', players=playerManager.getAllPlayers())
+
+@app.route('/start_tournament', methods=['POST'])
+def startTournament():
+    json = requestToJson(request)
+    if 'players' in json:
+        result = tournamentManager.newTournament(json['players'])
+
+    if result:
+        print(f'tournament started: {json}')
+        return jsonify({'success': True})
+    return jsonify({'success': False, 'message':'there is an odd number of players selected'})
 
 @socketio.on('get_initial_data')
 def handle_get_initial_data():
