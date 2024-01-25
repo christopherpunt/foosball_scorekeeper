@@ -47,6 +47,20 @@
     {% set stats=all_stats.recentGameHistory %}
     {% include 'leaderboard/gameHistory_stats_section.html' %}
 </main>
+
+<script src="/static/socket.io.min.js"></script>
+<script>
+    const socket = io.connect('http://' + document.domain + ':' + location.port + '/');
+
+    socket.on('connect', function() {
+        console.log('Socket connected');
+    });
+
+    socket.on('game_started', function() {
+        window.location.pathname = ("/game_page")
+    });
+    
+</script>
 {% endblock %}
 
 </html>

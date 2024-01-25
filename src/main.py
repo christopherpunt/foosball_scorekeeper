@@ -192,6 +192,7 @@ def handle_switch_sides():
 @socketio.on('game_completed')
 def handleGameCompleted():
     gameManager.gameCompleted()
+    socketio.emit('redirect_to_leaderboard')
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=Configuration.backendPort, debug=True, allow_unsafe_werkzeug=True)
