@@ -1,36 +1,38 @@
-from tournament import Tournament
+from tournament import *
 import pytest
 
-def test_newTournamentNotEnoughPlayers():
-    players = ["player1", "player2"]
+def test_valid_tournament_creation():
+    players = ["Player1", "Player2", "Player3", "Player4"]
+    manager = TournamentManager()
+    assert manager.newTournament(players) is True
+    assert manager.currentTournament is not None
+    round1Matches = manager.currentTournament.matches.get(1, None)
+    assert round1Matches is not None
+    assert len(round1Matches) == 1
+    round1Matches[0].assignRandomWinner()
 
-    with pytest.raises(ValueError, match="There must be at least 4 players for a tournament"):
-        tournament = Tournament(players)
-        assert tournament is not None
-        assert len(players) == 2  # Ensure the original list remains unchanged
-        assert tournament.teams == []  # Ensure no teams are created
+def test_invalid_tournament_creation():
+    players = ["Player1", "Player2"]
+    manager = TournamentManager()
+    assert manager.newTournament(players) is False
+    assert manager.currentTournament is None
 
-def test_newTournament2Teams():
-    players = ["player1", "player2", "player3", "player4"]
+def test_tournament_3Teams():
+    players = ["Player1", "Player2", "Player3", "Player4", "Player5", "Player6"]
     tournament = Tournament(players)
 
-    assert len(tournament.teams) == 2
+    # Assert that the number of matches is correct for each round
+    assert len(tournament.matches.get(1)) == 2
 
-    playersToMatch = []
-    for team in tournament.teams:
-        assert len(team) == 2
-        playersToMatch.append(team[0])
-        playersToMatch.append(team[1])
+def test_tournament_4Teams():
+    players = ["Player1", "Player2", "Player3", "Player4", "Player5", "Player6", "Player7", "Player8"]
+    tournament = Tournament(players)
 
-    assert set(players) == set(playersToMatch)
+    # Assert that the number of matches is correct for each round
+    assert len(tournament.matches.get(1)) == 2
 
-
-def test_new_tournament_odd_players():
-    players = ["player1", "player2", "player3", "player4", "player5"]
-    tournament = None  # Initialize the variable outside the with statement
-
-    with pytest.raises(ValueError, match="The number of players must be even to create teams."):
-        tournament = Tournament(players)
-        assert tournament is not None
-        assert len(players) == 5  # Ensure the original list remains unchanged
-        assert tournament.teams == []  # Ensure no teams are created
+def test_team_creation():
+    player1 = "Player1"
+    player2 = "Player2"
+    team = Team(player1, player2)
+    assert team.players == (player1, player2)
