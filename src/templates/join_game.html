@@ -80,6 +80,21 @@
     button:hover {
         background-color: #27ae60;
     }
+
+    input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        margin-top: 5px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-sizing: border-box;
+        font-size: 16px;
+    }
+
+    ::placeholder {
+        color: #aaa;
+    }
 </style>
 {% endblock %}
 
@@ -88,6 +103,7 @@
 <div class="team-container">
     <div class="team">
         <h2 class="red">Red Team</h2>
+        <input type="text" id="RED-team-filter" placeholder="Filter Red Team" onkeyup="filterPlayers('RED')">
         <ul class="player-list" data-team="RED">
             {% for player in players %}
             <div class="player-item" data-player="{{ player['username'] }}" data-team="RED">
@@ -103,6 +119,7 @@
 
     <div class="team">
         <h2 class="black">Black Team</h2>
+        <input type="text" id="BLACK-team-filter" placeholder="Filter Black Team" onkeyup="filterPlayers('BLACK')">
         <ul class="player-list" data-team="BLACK">
             {% for player in players %}
             <div class="player-item" data-player="{{ player['username'] }}" data-team="BLACK">
@@ -183,6 +200,20 @@
     }
 
     document.querySelector('button').addEventListener('click', startGame);
+
+    function filterPlayers(team) {
+        const input = document.getElementById(`${team}-team-filter`).value.toLowerCase();
+        const playerItems = document.querySelectorAll(`.player-item[data-team="${team}"]`);
+        
+        playerItems.forEach(item => {
+            const playerName = item.dataset.player.toLowerCase();
+            if (playerName.startsWith(input)) {
+                item.style.display = "block";
+            } else {
+                item.style.display = "none";
+            }
+        });
+    }
 </script>
 
 {% endblock %}
