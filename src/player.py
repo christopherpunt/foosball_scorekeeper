@@ -35,6 +35,7 @@ class PlayerManager:
         return None
 
     def addNewPlayer(self, newUser):
+        newUser = newUser.strip()
         if newUser is None or newUser == '':
             print(f'cannot create user {newUser}')
             return False
