@@ -89,7 +89,7 @@ def test_addNewPlayer_empty_username(playerManager):
     result = playerManager.addNewPlayer("")
     assert result is False
 
-def test_addNewPlayer_none_username(playerManager):
+def test_addNewPlayer_onlySpaces_username(playerManager):
     # Adding a player with None as the username should return False
-    result = playerManager.addNewPlayer(None)
+    result = playerManager.addNewPlayer("  ")
     assert result is False
