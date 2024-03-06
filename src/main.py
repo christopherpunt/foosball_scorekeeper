@@ -74,7 +74,10 @@ def getAllPlayers():
 
 @app.route('/join_game')
 def joinGame():
-    return render_template('join_game.html', players=playerManager.getAllPlayers())
+    return render_template('join_game.html', 
+                           players=playerManager.getPlayersSortedByTotalGames(
+                               leaderboardStats.getPlayersSortedByGamesPlayed()), 
+                           defaultPlayersCount=Configuration.defaultJoinGamePlayersCount)
 
 @app.route('/settings')
 def settings():

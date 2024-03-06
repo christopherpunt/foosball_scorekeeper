@@ -104,11 +104,12 @@
         <input type="text" id="RED-team-filter" placeholder="Filter Red Team" onkeyup="filterPlayers('RED')">
         <ul class="player-list" data-team="RED">
             {% for player in players %}
-            <div class="player-item" data-player="{{ player['username'] }}" data-team="RED">
+            <div class="player-item" data-player="{{ player['username'] }}" data-team="RED" {% if loop.index > defaultPlayersCount %}style="display: none;"{% endif %}>
                 {{ player['username'] }}
             </div>
             {% endfor %}
         </ul>
+        <button class="show-more-button" data-team="RED">Show More</button>
     </div>
 
     <div class="start-game-container">
@@ -120,15 +121,19 @@
         <input type="text" id="BLACK-team-filter" placeholder="Filter Black Team" onkeyup="filterPlayers('BLACK')">
         <ul class="player-list" data-team="BLACK">
             {% for player in players %}
-            <div class="player-item" data-player="{{ player['username'] }}" data-team="BLACK">
+            <div class="player-item" data-player="{{ player['username'] }}" data-team="BLACK" {% if loop.index > defaultPlayersCount %}style="display: none;"{% endif %}>
                 {{ player['username'] }}
             </div>
             {% endfor %}
         </ul>
+        <button class="show-more-button" data-team="BLACK">Show More</button>
     </div>
 </div>
 
 <script>
+    // Retrieve the initial display count from Flask
+    const INITIAL_DISPLAY_COUNT = {{ defaultPlayersCount }};
+
     const selectedPlayers = {
         RED: [],
         BLACK: []
@@ -212,8 +217,25 @@
             }
         });
     }
-</script>
 
+    // Add event listener for show more button clicks
+    document.querySelectorAll('.show-more-button').forEach(button => {
+        button.addEventListener('click', function() {
+            showMorePlayers(this.dataset.team);
+        });
+    });
+
+    function showMorePlayers(team) {
+        const playerItems = document.querySelectorAll(`.player-item[data-team="${team}"]`);
+        playerItems.forEach((item, index) => {
+            if (index >= INITIAL_DISPLAY_COUNT) {
+                item.style.display = "flex";
+            }
+        });
+        // Hide the show more button after revealing all players
+        document.querySelector(`button[data-team="${team}"]`).style.display = "none";
+    }
+</script>
 {% endblock %}
 
 </html>

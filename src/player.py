@@ -25,6 +25,21 @@ class PlayerManager:
         for player_data in self._db.all():
             players.append(Player(**player_data))
         return sorted(players, key=lambda x: (x.username.lower()))
+    
+    def getPlayersSortedByTotalGames(self, playersGamesPlayed):
+        players = self.getAllPlayers()
+        
+        # Merge player data with games played data
+        for player in players:
+            if player.username in playersGamesPlayed:
+                player.numGamesPlayed = playersGamesPlayed[player.username]
+            else:
+                player.numGamesPlayed = 0
+        
+        # Sort players by the total number of games played
+        sorted_players = sorted(players, key=lambda x: x.numGamesPlayed, reverse=True)
+        
+        return sorted_players
 
     def findExistingPlayer(self, playerName):
         User = Query()

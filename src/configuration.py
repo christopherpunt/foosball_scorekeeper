@@ -9,3 +9,4 @@ class Configuration:
     foosballGamesDatabase = 'instance/FoosballGames.json'
     playersDatabase = 'instance/players.json'
     leaderboardStatsCount = 10
+    defaultJoinGamePlayersCount=14
