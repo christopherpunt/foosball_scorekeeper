@@ -107,7 +107,7 @@
         const newUsername = newUsernameInput.value;
 
         const xhr = new XMLHttpRequest();
-        xhr.open('POST', '/add_user', true);
+        xhr.open('POST', '/players/add_user', true);
         xhr.setRequestHeader('Content-Type', 'application/json');
         xhr.onreadystatechange = function () {
             if (xhr.readyState === 4 && xhr.status === 200) {

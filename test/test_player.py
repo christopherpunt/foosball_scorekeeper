@@ -5,14 +5,10 @@ from tinydb import TinyDB
 import pytest
 
 @pytest.fixture
-def mock_socketio():
-    return Mock()
-
-@pytest.fixture
-def playerManager(mock_socketio):
+def playerManager():
     # Use the test configuration in your fixture
     with TestConfiguration():
-        yield PlayerManager(mock_socketio)
+        yield PlayerManager()
 
 @pytest.fixture(autouse=True)
 def setup_teardown_test_database(request):

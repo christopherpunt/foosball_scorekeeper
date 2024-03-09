@@ -16,8 +16,7 @@ class Player:
         return hasattr(self, 'username') and hasattr(other, 'username') and self.username == other.username
 
 class PlayerManager:
-    def __init__(self, socketio) -> None:
-        self.socketio = socketio
+    def __init__(self) -> None:
         self._db = TinyDB(Configuration.playersDatabase, indent=2, create_dirs=True)
 
     def getAllPlayers(self):
