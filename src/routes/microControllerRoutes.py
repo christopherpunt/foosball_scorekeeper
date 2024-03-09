@@ -1,5 +1,4 @@
-from flask import Flask, render_template, Blueprint, jsonify, request
-from leaderboardStats import LeaderboardStats
+from flask import Blueprint, jsonify, request
 from helpers import *
 
 microController_blueprint = Blueprint('microController', __name__)

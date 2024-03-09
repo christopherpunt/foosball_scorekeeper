@@ -1,4 +1,4 @@
-from flask import Flask, render_template, Blueprint, jsonify, request
+from flask import render_template, Blueprint
 from leaderboardStats import LeaderboardStats
 from helpers import *
 

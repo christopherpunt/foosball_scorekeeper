@@ -1,4 +1,4 @@
-from flask import Flask, render_template, Blueprint, jsonify, request
+from flask import render_template, Blueprint, jsonify, request
 from socketioManager import socketio
 from configuration import Configuration
 from foosballGame import FoosballGameManager
@@ -20,9 +20,9 @@ gameStartedBy = None
 @game_blueprint.route('/join_game')
 def joinGame():
     return render_template('join_game.html', 
-                           players=playerManager.getPlayersSortedByTotalGames(
-                               leaderboardStats.getPlayersSortedByGamesPlayed()), 
-                           defaultPlayersCount=Configuration.defaultJoinGamePlayersCount)
+                           smallPlayersList=playerManager.getPlayersSortedByTotalGames(
+                               leaderboardStats.getPlayersSortedByGamesPlayed(), Configuration.defaultJoinGamePlayersCount), 
+                           allPlayers=playerManager.getAllPlayers())
 
 @game_blueprint.route('/game_page')
 def game_page():

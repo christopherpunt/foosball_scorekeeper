@@ -102,14 +102,25 @@
     <div class="team">
         <h2 class="red">Red Team</h2>
         <input type="text" id="RED-team-filter" placeholder="Filter Red Team" onkeyup="filterPlayers('RED')">
-        <ul class="player-list" data-team="RED">
-            {% for player in players %}
-            <div class="player-item" data-player="{{ player['username'] }}" data-team="RED" {% if loop.index > defaultPlayersCount %}style="display: none;"{% endif %}>
-                {{ player['username'] }}
-            </div>
-            {% endfor %}
-        </ul>
-        <button class="show-more-button" data-team="RED">Show More</button>
+        <div id="small-RED-players">
+            <ul class="player-list" data-team="RED">
+                {% for player in smallPlayersList %}
+                <div class="player-item" data-player="{{ player['username'] }}" data-team="RED">
+                    {{ player['username'] }}
+                </div>
+                {% endfor %}
+            </ul>
+        </div>
+        <div id="all-RED-players" style="display: none;">
+            <ul class="player-list" data-team="RED">
+                {% for player in allPlayers %}
+                <div class="player-item" data-player="{{ player['username'] }}" data-team="RED">
+                    {{ player['username'] }}
+                </div>
+                {% endfor %}
+            </ul>
+        </div>
+        <button class="show-more-button" onclick="showMorePlayers('RED')">Show More</button>
     </div>
 
     <div class="start-game-container">
@@ -118,22 +129,30 @@
 
     <div class="team">
         <h2 class="black">Black Team</h2>
-        <input type="text" id="BLACK-team-filter" placeholder="Filter Black Team" onkeyup="filterPlayers('BLACK')">
-        <ul class="player-list" data-team="BLACK">
-            {% for player in players %}
-            <div class="player-item" data-player="{{ player['username'] }}" data-team="BLACK" {% if loop.index > defaultPlayersCount %}style="display: none;"{% endif %}>
-                {{ player['username'] }}
-            </div>
-            {% endfor %}
-        </ul>
-        <button class="show-more-button" data-team="BLACK">Show More</button>
+        <input type="text" id="BLACK-team-filter" placeholder="Filter Red Team" onkeyup="filterPlayers('BLACK')">
+        <div id="small-BLACK-players">
+            <ul class="player-list" data-team="BLACK">
+                {% for player in smallPlayersList %}
+                <div class="player-item" data-player="{{ player['username'] }}" data-team="BLACK">
+                    {{ player['username'] }}
+                </div>
+                {% endfor %}
+            </ul>
+        </div>
+        <div id="all-BLACK-players" style="display: none;">
+            <ul class="player-list" data-team="BLACK">
+                {% for player in allPlayers %}
+                <div class="player-item" data-player="{{ player['username'] }}" data-team="BLACK">
+                    {{ player['username'] }}
+                </div>
+                {% endfor %}
+            </ul>
+        </div>
+        <button class="show-more-button" onclick="showMorePlayers('BLACK')">Show More</button>
     </div>
 </div>
 
 <script>
-    // Retrieve the initial display count from Flask
-    const INITIAL_DISPLAY_COUNT = "{{ defaultPlayersCount }}";
-
     const selectedPlayers = {
         RED: [],
         BLACK: []
@@ -226,14 +245,16 @@
     });
 
     function showMorePlayers(team) {
-        const playerItems = document.querySelectorAll(`.player-item[data-team="${team}"]`);
-        playerItems.forEach((item, index) => {
-            if (index >= INITIAL_DISPLAY_COUNT) {
-                item.style.display = "flex";
-            }
-        });
-        // Hide the show more button after revealing all players
-        document.querySelector(`button[data-team="${team}"]`).style.display = "none";
+        const smallPlayerList = document.querySelector(`#small-${team}-players`);
+        const allPlayerList = document.querySelector(`#all-${team}-players`);
+
+        if (smallPlayerList.style.display !== 'none') {
+            smallPlayerList.style.display = 'none';
+            allPlayerList.style.display = 'block';
+        } else {
+            smallPlayerList.style.display = 'block';
+            allPlayerList.style.display = 'none';
+        }
     }
 </script>
 {% endblock %}

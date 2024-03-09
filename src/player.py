@@ -25,7 +25,7 @@ class PlayerManager:
             players.append(Player(**player_data))
         return sorted(players, key=lambda x: (x.username.lower()))
     
-    def getPlayersSortedByTotalGames(self, playersGamesPlayed):
+    def getPlayersSortedByTotalGames(self, playersGamesPlayed, countLimit):
         players = self.getAllPlayers()
         
         # Merge player data with games played data
@@ -36,9 +36,9 @@ class PlayerManager:
                 player.numGamesPlayed = 0
         
         # Sort players by the total number of games played
-        sorted_players = sorted(players, key=lambda x: x.numGamesPlayed, reverse=True)
+        sorted_players = sorted(players, key=lambda x: x.numGamesPlayed, reverse=True)[:countLimit]
         
-        return sorted_players
+        return sorted(sorted_players, key=lambda x: (x.username.lower()))
 
     def findExistingPlayer(self, playerName):
         User = Query()
