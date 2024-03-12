@@ -120,7 +120,7 @@
                 {% endfor %}
             </ul>
         </div>
-        <button class="show-more-button" onclick="showMorePlayers('RED')">Show More</button>
+        <button class="show-more-button" data-team="RED" onclick="showMorePlayers('RED')">Show More</button>
     </div>
 
     <div class="start-game-container">
@@ -148,7 +148,7 @@
                 {% endfor %}
             </ul>
         </div>
-        <button class="show-more-button" onclick="showMorePlayers('BLACK')">Show More</button>
+        <button class="show-more-button" data-team="BLACK" onclick="showMorePlayers('BLACK')">Show More</button>
     </div>
 </div>
 
@@ -237,23 +237,20 @@
         });
     }
 
-    // Add event listener for show more button clicks
-    document.querySelectorAll('.show-more-button').forEach(button => {
-        button.addEventListener('click', function() {
-            showMorePlayers(this.dataset.team);
-        });
-    });
 
     function showMorePlayers(team) {
         const smallPlayerList = document.querySelector(`#small-${team}-players`);
         const allPlayerList = document.querySelector(`#all-${team}-players`);
+        const button = document.querySelector(`.show-more-button[data-team="${team}"]`);
 
         if (smallPlayerList.style.display !== 'none') {
             smallPlayerList.style.display = 'none';
             allPlayerList.style.display = 'block';
+            button.innerText = 'Show Less';
         } else {
             smallPlayerList.style.display = 'block';
             allPlayerList.style.display = 'none';
+            button.innerText = 'Show More';
         }
     }
 </script>
