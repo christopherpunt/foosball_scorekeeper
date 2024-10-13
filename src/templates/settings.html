@@ -13,50 +13,116 @@
             background-color: #f4f4f4;
             margin: 0;
             padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 36px;
+            color: #333;
+            margin-bottom: 40px;
             text-align: center;
         }
 
-        input[type="submit"] {
-            margin-top: 20px;
+        .form-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px;
+        }
 
-            padding: 50px; /* Increase padding for a bigger button */
-            font-size: 50px;
+        label {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #555;
+        }
+
+        input[type="number"] {
+            padding: 10px;
+            font-size: 24px;
+            width: 120px;
+            text-align: center;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        input[type="submit"] {
+            padding: 15px 40px;
+            font-size: 24px;
+            color: #fff;
             cursor: pointer;
             border: none;
-            border-radius: 10px; /* Add border-radius for rounded edges */
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
         }
 
         #lightsFormOn input[type="submit"] {
-            background-color: #4caf50; /* Green for "On" button */
-            color: #fff;
+            background-color: #4caf50;
         }
 
         #lightsFormOff input[type="submit"] {
-            background-color: #ff5555; /* Red for "Off" button */
-            color: #fff;
+            background-color: #ff5555;
+        }
+
+        #saveHistoryForm input[type="submit"] {
+            background-color: #4caf50;
         }
 
         #resetGame input[type="submit"] {
-            padding: 20px;
-            margin-top: 200px;
-            font-size: 30px;
             background-color: #2f9ef8;
-            color: #fff;
+            margin-top: 30px;
         }
+
+        input[type="submit"]:hover {
+            opacity: 0.9;
+        }
+
+        @media (max-width: 600px) {
+            input[type="submit"], input[type="number"] {
+                font-size: 20px;
+            }
+
+            h1 {
+                font-size: 28px;
+            }
+        }
+
     </style>
 {% endblock %}
 
 {% block content %}
-    <!-- Lights Control Form -->
-    <form id="lightsFormOn" action="/settings/lights_on" method="post">
-        <input type="submit" name="lightsOn" value="Turn lights on" />
-    </form>
+    <div class="container">
+        <h1>Settings</h1>
 
-    <form id="lightsFormOff" action="/settings/lights_off" method="post">
-        <input type="submit" name="lightsOff" value="Turn lights off" />
-    </form>
+        <div class="form-section">
+            <form id="lightsFormOn" action="/settings/lights_on" method="post">
+                <input type="submit" name="lightsOn" value="Turn Lights On" />
+            </form>
+            <form id="lightsFormOff" action="/settings/lights_off" method="post">
+                <input type="submit" name="lightsOff" value="Turn Lights Off" />
+            </form>
+        </div>
 
-    <form id="resetGame" action="/reset_game" method="post">
-        <input type="submit" name="reset_game" value="Actually Reset Game" />
-    </form>
+        <div class="form-section">
+            <form id="saveHistoryForm" action="/settings/save_leaderboard_history" method="post">
+                <label for="historyCount">Leaderboard History Count:</label>
+                <input type="number" id="historyCount" name="historyCount" min="1" value="{{ leaderboard_history }}" required>
+                <input type="submit" value="Save History Count" />
+            </form>
+        </div>
+
+        <div class="form-section">
+            <form id="resetGame" action="/reset_game" method="post">
+                <input type="submit" name="reset_game" value="Actually Reset Game" />
+            </form>
+        </div>
+    </div>
 {% endblock %}

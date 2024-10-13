@@ -10,3 +10,4 @@ class Configuration:
     playersDatabase = 'instance/players.json'
     leaderboardStatsCount = 10
     defaultJoinGamePlayersCount=14
+    leaderboardHistory=100

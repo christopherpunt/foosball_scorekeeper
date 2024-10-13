@@ -25,7 +25,7 @@ class LeaderboardStats:
 
     def getPlayerStats(self):
         # Fetch data from the TinyDB
-        data = self._db.table('_default').all()
+        data = self.getGameData()
 
         # Process data to extract relevant information
         # You can modify this part based on your specific requirements
@@ -60,7 +60,7 @@ class LeaderboardStats:
         team_stats = defaultdict(lambda: {'wins': 0, 'losses': 0})
 
         # Iterate through each game
-        for game_info in self._db.table('_default').all():
+        for game_info in self.getGameData():
             red_team = [player for player in [game_info.get('redPlayer1', None), game_info.get('redPlayer2', None)] if player is not None]
             black_team = [player for player in [game_info.get('blackPlayer1', None), game_info.get('blackPlayer2', None)] if player is not None]
 
@@ -87,7 +87,7 @@ class LeaderboardStats:
         team_stats = defaultdict(lambda: {'beans': 0})
 
         # Iterate through each game
-        for game_info in self._db.table('_default').all():
+        for game_info in self.getGameData():
             red_team = [player for player in [game_info.get('redPlayer1', None), game_info.get('redPlayer2', None)] if player is not None]
             black_team = [player for player in [game_info.get('blackPlayer1', None), game_info.get('blackPlayer2', None)] if player is not None]
 
@@ -119,7 +119,7 @@ class LeaderboardStats:
             'RED':0,
             'BLACK':0
             }
-        for game_info in self._db.table('_default').all():
+        for game_info in self.getGameData():
             if game_info.get('isFinished', False):
                 teamData[game_info['winningTeam']] += 1
 
@@ -128,7 +128,7 @@ class LeaderboardStats:
     def getShortestGames(self):
         game_stats = []
 
-        for game_info in self._db.table('_default').all():
+        for game_info in self.getGameData():
             red_team = [player for player in [game_info.get('redPlayer1', None), game_info.get('redPlayer2', None)] if player is not None]
             black_team = [player for player in [game_info.get('blackPlayer1', None), game_info.get('blackPlayer2', None)] if player is not None]
 
@@ -150,7 +150,7 @@ class LeaderboardStats:
     def getRecentGameHistory(self):
         game_stats = []
 
-        for game_info in self._db.table('_default').all():
+        for game_info in self.getGameData():
             red_team = [player for player in [game_info.get('redPlayer1', None), game_info.get('redPlayer2', None)] if player is not None]
             black_team = [player for player in [game_info.get('blackPlayer1', None), game_info.get('blackPlayer2', None)] if player is not None]
 
@@ -176,7 +176,7 @@ class LeaderboardStats:
 
     def getPlayerWastedTime(self):
         # Fetch data from the TinyDB
-        data = self._db.table('_default').all()
+        data = self.getGameData()
 
         # Process data to extract relevant information
         # You can modify this part based on your specific requirements
@@ -206,7 +206,7 @@ class LeaderboardStats:
     
     def getPlayersSortedByGamesPlayed(self):
         # Fetch data from the TinyDB
-        data = self._db.table('_default').all()
+        data = self.getGameData()
 
         # Process data to extract relevant information
         # You can modify this part based on your specific requirements
@@ -231,7 +231,7 @@ class LeaderboardStats:
         return player_stats
     
     def getTotalGameTime(self):
-        data = self._db.table('_default').all()
+        data = self.getGameData()
         duration = timedelta(seconds=0)
         numGames = 0
 
@@ -239,3 +239,9 @@ class LeaderboardStats:
             duration += datetime.strptime(game['finishTime'], Configuration.dateFormat) - datetime.strptime(game['startTime'], Configuration.dateFormat)
             numGames += 1
         return (numGames, duration)
+    
+    def getGameData(self):
+        data = self._db.table('_default').all()
+        if (Configuration.leaderboardHistory <= 0):
+            return data
+        return sorted(data, key=lambda x: int(x.doc_id), reverse=True)[:Configuration.leaderboardHistory]
