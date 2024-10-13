@@ -25,4 +25,5 @@ def turnLightsOff():
 def save_leaderboard_history():
     new_history_count = int(request.form.get('historyCount'))
     Configuration.leaderboardHistory = new_history_count
+    Configuration.save_configuration()
     return redirect(url_for('settings.settings'))

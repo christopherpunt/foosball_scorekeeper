@@ -7,6 +7,9 @@ from routes.leaderboardRoutes import leaderboard_blueprint
 from routes.microControllerRoutes import microController_blueprint
 from routes.gameRoutes import game_blueprint
 
+# Load configuration on application startup
+Configuration.load_configuration()
+
 app = Flask(__name__)
 socketio.init_app(app)
 
