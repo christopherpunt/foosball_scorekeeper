@@ -29,3 +29,11 @@ https://github.com/christopherpunt/foosball_scorekeeper/assets/43280249/74b661bc
 <img width="1728" alt="Screenshot 2024-02-23 at 8 25 07 PM" src="https://github.com/christopherpunt/foosball_scorekeeper/assets/43280249/41fccb8e-0225-45c5-a150-751802ce08e5">
 
 <img width="1728" alt="Screenshot 2024-02-23 at 8 25 24 PM" src="https://github.com/christopherpunt/foosball_scorekeeper/assets/43280249/e396ab92-3735-4b01-95cb-663be707d6f5">
+
+
+Containerization
+# how to build
+podman build -t foosball .
+
+# how to run
+podman run -d -p 5001:5001 -v ./db_instance:/instance foosball
