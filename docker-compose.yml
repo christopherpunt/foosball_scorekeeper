@@ -1,0 +1,11 @@
+services:
+  app:
+    build:
+      context: .
+    ports:
+      - "5001:5001"
+    volumes:
+      - db_data:/app/instance  # Bind mount for TinyDB data
+
+volumes:
+  db_data:

@@ -1,13 +1,15 @@
 FROM python:3
 
-WORKDIR /src
+WORKDIR /app
 
 COPY backend_requirements.txt .
 
 RUN pip install --no-cache-dir -r backend_requirements.txt
 
-COPY ./src /app/src
+COPY ./src /app
 
-WORKDIR /app/src
+EXPOSE 5001
+
+VOLUME /app/instance
 
 CMD [ "python", "main.py" ]
